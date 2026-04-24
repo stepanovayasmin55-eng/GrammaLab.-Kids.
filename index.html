@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrammaLab Kids Studio</title>
+    <style>
+        :root { --p: #6a0dad; --w: #ffffff; --b: #000000; --g: #f0f0f0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--p); color: var(--w); margin: 0; padding: 0; }
+        
+        header { background: var(--b); padding: 20px; text-align: center; border-bottom: 3px solid var(--w); }
+        .ai-btn { background: var(--w); color: var(--p); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; float: right; }
+
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; }
+
+        /* Сетка шаблонов */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        .card { background: var(--w); color: var(--b); border: 3px solid var(--b); border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .card:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+        .card span { font-size: 40px; display: block; margin-bottom: 10px; }
+
+        /* Редактор как в Wordwall */
+        .editor-box { background: rgba(0,0,0,0.6); border: 2px solid var(--w); border-radius: 20px; padding: 30px; display: none; }
+        .q-input-group { background: var(--w); color: var(--b); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid var(--p); border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        .ans-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .ans-label { background: var(--p); color: var(--w); width: 35px; height: 35px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        
+        .btn-done { background: #27ae60; color: white; border: 2px solid white; padding: 15px 30px; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; }
+
+        /* Колесо */
+        #game-view { display: none; text-align: center; }
+        .wheel-circle { width: 300px; height: 300px; border: 10px solid var(--w); border-radius: 50%; margin: 30px auto; background: conic-gradient(var(--w) 0% 25%, var(--b) 25% 50%, var(--w) 50% 75%, var(--b) 75% 100%); transition: transform 3s cubic-bezier(0.1, 0, 0, 1); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: var(--p); text-shadow: 1px 1px white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <button class="ai-btn" onclick="aiFill()">✨ ИИ ЗАПОЛНИТЬ</button>
+    <h1 style="margin: 0;">💜 GrammaLab Kids</h1>
+</header>
+
+<div class="container">
+    <div id="menu" class="grid">
+        <div class="card" onclick="openEdit('Сопоставить', '🔗')"><span>🔗</span>Сопоставить</div>
+        <div class="card" onclick="openEdit('Викторина', '📝')"><span>📝</span>Викторина</div>
+        <div class="card" onclick="openEdit('Случайные карты', '🃏')"><span>🃏</span>Карты</div>
+        <div class="card" onclick="openEdit('Анаграмма', '🔠')"><span>🔠</span>Анаграмма</div>
+        <div class="card" onclick="openEdit('Флеш-карты', '📇')"><span>📇</span>Флеш-карты</div>
+        <div class="card" onclick="openEdit('Группировка', '📁')"><span>📁</span>Группы</div>
+        <div class="card" onclick="openEdit('Порядок', '🔢')"><span>🔢</span>Порядок</div>
+        <div class="card" onclick="openEdit('Колесо фортуны', '🎡')"><span>🎡</span>Колесо</div>
+        <div class="card" onclick="openEdit('Открой поле', '🎁')"><span>🎁</span>Поле</div>
+    </div>
+
+    <div id="editor" class="editor-box">
+        <h2 id="ed-title" style="text-align: center;">Ввести контент</h2>
+        <div class="q-input-group">
+            <label style="font-weight: bold; color: var(--p);">Вопрос 1:</label>
+            <input type="text" id="q1" placeholder="Введите ваш вопрос...">
+            
+            <div style="margin-top: 15px; font-weight: bold; color: var(--p);">Варианты ответов:</div>
+            <div class="ans-row">
+                <div class="ans-label">а</div>
+                <input type="text" id="a1" placeholder="Правильный ответ">
+            </div>
+            <div class="ans-row">
+                <div class="ans-label">б</div>
+                <input type="text" id="a2" placeholder="Неправильный вариант">
+            </div>
+            <div class="ans-row">
+                <div class="ans-label">в</div>
+                <input type="text" id="a3" placeholder="Неправильный вариант">
+            </div>
+        </div>
+        <button class="btn-done" onclick="goToGame()">ВЫПОЛНЕНО (ИГРАТЬ)</button>
+        <button class="btn-done" style="background:#666; margin-top:10px;" onclick="location.reload()">НАЗАД</button>
+    </div>
+
+    <div id="game-view">
+        <h2 id="game-res-title" style="font-size: 32px;">Игра запущена!</h2>
+        <div class="wheel-circle" id="wheel">КРУТИ!</div>
+        <button class="btn-done" style="background:var(--w); color: var(--p);" onclick="spin()">КРУТИТЬ КОЛЕСО</button>
+        <button class="btn-done" style="background:#666; margin-top:20px;" onclick="location.reload()">В МЕНЮ</button>
+    </div>
+</div>
+
+<script>
+    let currentMode = "";
+
+    function openEdit(mode, icon) {
+        currentMode = mode;
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('editor').style.display = 'block';
+        document.getElementById('ed-title').innerText = icon + " " + mode + ": Настройка";
+    }
+
+    function aiFill() {
+        document.getElementById('q1').value = "В каком слове пишется буква О?";
+        document.getElementById('a1').value = "М...локо";
+        document.getElementById('a2').value = "Тр...ва";
+        document.getElementById('a3').value = "К...ртина";
+        alert("🤖 ИИ наполнил ваш шаблон!");
+    }
+
+    function goToGame() {
+        const q = document.getElementById('q1').value;
+        if(!q) return alert("Заполните вопрос!");
+        document.getElementById('editor').style.display = 'none';
+        document.getElementById('game-view').style.display = 'block';
+        document.getElementById('game-res-title').innerText = currentMode;
+    }
+
+    let r = 0;
+    function spin() {
+        r += 1800 + Math.random() * 360;
+        document.getElementById('wheel').style.transform = `rotate(${r}deg)`;
+        setTimeout(() => {
+            alert("🎯 Выпало задание: " + document.getElementById('q1').value);
+        }, 3100);
+    }
+</script>
+
+</body>
+</html>
