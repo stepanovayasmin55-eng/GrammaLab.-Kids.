@@ -3,116 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GrammaLab Kids — Твой Конструктор</title>
+    <title>GrammaLab Kids — Обмен и Уроки</title>
     <style>
-        :root { --bg: #ffffff; --blue: #e3f2fd; --main: #00a2ff; --dark: #0077b6; --text: #333; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
-        header { background: var(--main); padding: 15px; text-align: center; color: white; font-weight: bold; }
+        :root { --bg: #ffffff; --blue: #e3f2fd; --main: #00a2ff; --dark: #0077b6; --gold: #ffeb3b; --green: #2ecc71; --purple: #9b59b6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
+        header { background: var(--main); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        .btn { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .import-btn { background: var(--purple); color: white; }
+        .ai-btn { background: var(--gold); color: #333; }
+
         .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        h2 { color: var(--dark); border-left: 5px solid var(--main); padding-left: 10px; margin-top: 30px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 15px; }
+        .card { background: var(--blue); border: 2px solid var(--main); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); background: var(--main); color: white; }
+        .card span { font-size: 24px; display: block; margin-bottom: 5px; }
 
-        /* Видео */
-        .main-video { width: 100%; height: 350px; background: #000; border-radius: 15px; margin-bottom: 20px; border: 4px solid var(--blue); }
+        /* Стиль для популярных */
+        .pop-card { background: #fff9c4; border: 2px solid #fbc02d; color: #7f6d00; }
 
-        /* Сетка игр */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-        .card { background: var(--blue); border: 2px solid var(--main); border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; }
-
-        /* РЕДАКТОР (как на твоем фото) */
-        #editor { display: none; background: #f9f9f9; padding: 20px; border-radius: 15px; border: 2px solid var(--main); }
+        #editor, #game-zone { display: none; background: #f9f9f9; padding: 25px; border-radius: 20px; border: 2px solid var(--main); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .q-block { background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 15px; }
-        .ans-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; padding: 5px; border: 1px solid #eee; border-radius: 8px; }
+        .ans-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; border: 1px solid #eee; border-radius: 8px; padding: 8px; }
+        .status-btn { font-size: 24px; cursor: pointer; width: 40px; text-align: center; }
         
-        /* КНОПКА-ПЕРЕКЛЮЧАТЕЛЬ */
-        .status-btn { font-size: 24px; cursor: pointer; width: 40px; text-align: center; user-select: none; transition: 0.2s; }
-        .status-btn:hover { transform: scale(1.2); }
-        
-        input[type="text"] { flex: 1; border: none; outline: none; font-size: 16px; padding: 5px; }
-        
-        .btn-play { background: var(--main); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        #game-zone { display: none; text-align: center; }
+        input { flex: 1; border: none; outline: none; padding: 5px; background: transparent; font-size: 16px; }
+        .action-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 10px; color: white; }
+        .copy-box { background: #eee; padding: 10px; border-radius: 8px; font-size: 10px; word-break: break-all; margin-top: 10px; display: none; border: 1px dashed #999; }
     </style>
 </head>
 <body>
 
-<header>💎 GrammaLab Kids Studio</header>
+<header>
+    <div style="font-weight: bold; font-size: 18px;">💎 GrammaLab Studio</div>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn import-btn" onclick="importGame()">📥 Вставить код</button>
+        <button class="btn ai-btn" onclick="runSmartAI()">✨ ИИ</button>
+    </div>
+</header>
 
 <div class="container">
     <div id="main-screen">
-        <div class="main-video">
-            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/S_8q0sO1RMo" frameborder="0" allowfullscreen></iframe>
+        <h2>🔥 Популярные (Готовые уроки)</h2>
+        <div class="grid">
+            <div class="card pop-card" onclick="loadPop('не_с_глаголами')"><span>🚫</span>Не с глаголами</div>
+            <div class="card pop-card" onclick="loadPop('спряжения')"><span>🔄</span>Спряжения</div>
+            <div class="card pop-card" onclick="loadPop('прямая_речь')"><span>💬</span>Прямая речь</div>
+            <div class="card pop-card" onclick="loadPop('местоимения')"><span>👤</span>Местоимения</div>
         </div>
-        <div class="grid" id="menu"></div>
+
+        <h2>🛠 Шаблоны (Создай своё)</h2>
+        <div class="grid">
+            <div class="card" onclick="openEd('Викторина')"><span>📝</span>Викторина</div>
+            <div class="card" onclick="openEd('Крот')"><span>🔨</span>Крот</div>
+            <div class="card" onclick="openEd('Колесо')"><span>🎡</span>Колесо</div>
+            <div class="card" onclick="openEd('Анаграмма')"><span>🔠</span>Анаграмма</div>
+        </div>
     </div>
 
     <div id="editor">
-        <h2 id="ed-title">Настройка</h2>
-        <input type="text" id="topic" placeholder="Тема занятия..." style="border: 2px solid var(--main); margin-bottom:15px; border-radius:8px; padding:10px; width:97%;">
+        <h2 id="ed-title" style="border:none; margin:0 0 15px 0;">Настройка</h2>
+        <input type="text" id="topic" placeholder="Тема (например: Глагол)" style="border: 2px solid var(--main); width: 95%; padding: 12px; border-radius: 10px; margin-bottom: 15px;">
         
-        <div id="q-list">
-            <div class="q-block">
-                <input type="text" class="q-val" placeholder="Введите вопрос">
-                <div class="ans-row">
-                    <div class="status-btn" onclick="toggleStatus(this)">✅</div>
-                    <input type="text" class="ans-text" placeholder="Правильный ответ">
-                </div>
-                <div class="ans-row">
-                    <div class="status-btn" onclick="toggleStatus(this)">❌</div>
-                    <input type="text" class="ans-text" placeholder="Неправильный ответ">
-                </div>
-                <div class="ans-row">
-                    <div class="status-btn" onclick="toggleStatus(this)">❌</div>
-                    <input type="text" class="ans-text" placeholder="Неправильный ответ">
-                </div>
-            </div>
-        </div>
+        <div id="q-list"></div>
 
-        <button class="btn-play" style="background:#27ae60" onclick="addQ()">➕ Добавить вопрос</button>
-        <button class="btn-play" onclick="play()">ЗАПУСТИТЬ</button>
+        <button class="btn" style="background:var(--green); color:white; width:100%; margin-bottom:5px;" onclick="addBlankQ()">➕ Добавить вопрос</button>
+        <button class="btn" style="background:var(--purple); color:white; width:100%;" onclick="exportGame()">💾 Копировать код игры</button>
+        
+        <div id="copy-output" class="copy-box"></div>
+
+        <button class="action-btn" style="background:var(--main);" onclick="startGame()">ЗАПУСТИТЬ</button>
+        <button class="btn" style="background:#ccc; width:100%; margin-top:10px;" onclick="location.reload()">НАЗАД</button>
     </div>
 
     <div id="game-zone">
-        <h2 id="g-title"></h2>
-        <div id="g-content" style="background:var(--blue); padding:30px; border-radius:20px; border:3px solid var(--main);"></div>
-        <button class="btn-play" style="background:#ccc; margin-top:20px" onclick="location.reload()">В МЕНЮ</button>
+        <h2 id="g-title" style="border:none; text-align:center;"></h2>
+        <div id="g-content" style="background:var(--blue); padding:30px; border-radius:20px; text-align:center; min-height:150px;"></div>
+        <button class="action-btn" style="background:#666;" onclick="location.reload()">В МЕНЮ</button>
     </div>
 </div>
 
 <script>
-    // Список игр
-    const games = ['Викторина','Колесо','Анаграмма','Сопоставить','Закончи фразу','Крот','Карты','Флеш карты','Найти пару','Лабиринт','Открой поле'];
-    const menu = document.getElementById('menu');
-    games.forEach(g => { menu.innerHTML += `<div class="card" onclick="openEd('${g}')">${g}</div>`; });
+    let mode = "";
+
+    // 1. КОД ДЛЯ ПОПУЛЯРНЫХ ТЕМ
+    const popularData = {
+        'не_с_глаголами': {
+            m: 'Викторина', t: 'Не с глаголами',
+            qs: [
+                {q: '(не)навидеть', a: 'ненавидеть', w: 'не навидеть'},
+                {q: '(не)был', a: 'не был', w: 'небыл'},
+                {q: '(не)хочу', a: 'не хочу', w: 'нехочу'}
+            ]
+        },
+        'спряжения': {
+            m: 'Крот', t: 'Спряжение глаголов',
+            qs: [
+                {q: '2-е спряжение', a: 'строить', w: 'петь'},
+                {q: '1-е спряжение', a: 'читать', w: 'видеть'},
+                {q: 'Исключение 1-го спр.', a: 'брить', w: 'дышать'}
+            ]
+        },
+        'прямая_речь': {
+            m: 'Анаграмма', t: 'Прямая речь',
+            qs: [
+                {q: 'Знак перед речью (А: "П")', a: 'двоеточие', w: 'тире'},
+                {q: 'Где стоят кавычки?', a: 'в начале и конце', w: 'только в начале'}
+            ]
+        },
+        'местоимения': {
+            m: 'Викторина', t: 'Падежи местоимений',
+            qs: [
+                {q: 'Творительный (Я)', a: 'мной', w: 'меня'},
+                {q: 'Дательный (МЫ)', a: 'нам', w: 'нас'}
+            ]
+        }
+    };
 
     function openEd(m) {
+        mode = m;
         document.getElementById('main-screen').style.display = 'none';
         document.getElementById('editor').style.display = 'block';
-        document.getElementById('ed-title').innerText = "Настройка: " + m;
+        document.getElementById('ed-title').innerText = "Создание: " + m;
+        if(document.getElementById('q-list').children.length === 0) addBlankQ();
     }
 
-    // ГЛАВНАЯ ФУНКЦИЯ ДЛЯ ПЕРЕКЛЮЧЕНИЯ ✅ и ❌
     function toggleStatus(btn) {
-        if(btn.innerText === "✅") {
-            btn.innerText = "❌";
-        } else {
-            btn.innerText = "✅";
-        }
+        btn.innerText = (btn.innerText === "✅") ? "❌" : "✅";
     }
 
-    function addQ() {
+    function addBlankQ(qV="", aV="", wV="") {
         const div = document.createElement('div');
         div.className = 'q-block';
-        div.innerHTML = `<input type="text" class="q-val" placeholder="Введите вопрос">
-            <div class="ans-row"><div class="status-btn" onclick="toggleStatus(this)">✅</div><input type="text" class="ans-text" placeholder="Ответ"></div>
-            <div class="ans-row"><div class="status-btn" onclick="toggleStatus(this)">❌</div><input type="text" class="ans-text" placeholder="Ответ"></div>`;
+        div.innerHTML = `<input type="text" class="q-val" placeholder="Вопрос" value="${qV}">
+            <div class="ans-row"><div class="status-btn" onclick="toggleStatus(this)">✅</div><input type="text" class="ans-text" placeholder="Верно" value="${aV}"></div>
+            <div class="ans-row"><div class="status-btn" onclick="toggleStatus(this)">❌</div><input type="text" class="ans-text" placeholder="Неверно" value="${wV}"></div>`;
         document.getElementById('q-list').appendChild(div);
     }
 
-    function play() {
+    // 2. КОД ДЛЯ ПЕРЕДАЧИ ИГР (EXPORT)
+    function exportGame() {
+        const data = {
+            m: mode,
+            t: document.getElementById('topic').value,
+            qs: []
+        };
+        document.querySelectorAll('.q-block').forEach(b => {
+            data.qs.push({
+                q: b.querySelector('.q-val').value,
+                a: b.querySelectorAll('.ans-text')[0].value,
+                w: b.querySelectorAll('.ans-text')[1].value
+            });
+        });
+        const code = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+        const out = document.getElementById('copy-output');
+        out.innerText = code;
+        out.style.display = 'block';
+        alert("Код игры создан! Скопируй его из серой рамки.");
+    }
+
+    // 3. КОД ДЛЯ ПРИЕМА ИГР (IMPORT)
+    function importGame() {
+        const code = prompt("Вставь код игры, который тебе прислали:");
+        if(!code) return;
+        try {
+            const data = JSON.parse(decodeURIComponent(escape(atob(code))));
+            openEd(data.m);
+            document.getElementById('topic').value = data.t;
+            const list = document.getElementById('q-list');
+            list.innerHTML = "";
+            data.qs.forEach(it => addBlankQ(it.q, it.a, it.w));
+            alert("✅ Игра успешно загружена!");
+        } catch(e) { alert("❌ Ошибка в коде!"); }
+    }
+
+    function loadPop(key) {
+        const d = popularData[key];
+        openEd(d.m);
+        document.getElementById('topic').value = d.t;
+        const list = document.getElementById('q-list');
+        list.innerHTML = "";
+        d.qs.forEach(it => addBlankQ(it.q, it.a, it.w));
+    }
+
+    function runSmartAI() {
+        const t = document.getElementById('topic').value || "Тема";
+        addBlankQ("Вопрос от ИИ по теме " + t, "Верно", "Неверно");
+    }
+
+    function startGame() {
         document.getElementById('editor').style.display = 'none';
         document.getElementById('game-zone').style.display = 'block';
-        // Здесь логика запуска самой игры
-        document.getElementById('g-content').innerHTML = "Игра готова! (Здесь будет твой контент)";
+        document.getElementById('g-title').innerText = mode + ": " + document.getElementById('topic').value;
+        document.getElementById('g-content').innerHTML = "<h3>Урок загружен!</h3><p>Все вопросы на месте.</p>";
     }
 </script>
 </body>
 </html>
+
