@@ -3,36 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GrammaLab Kids — Ultimate Studio</title>
+    <title>GrammaLab Kids — Твой Конструктор</title>
     <style>
         :root { --bg: #ffffff; --blue: #e3f2fd; --main: #00a2ff; --dark: #0077b6; --text: #333; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
-        header { background: var(--main); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        header { background: var(--main); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: white; }
         .ai-btn { background: white; color: var(--main); border: 2px solid white; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
 
-        /* Главная */
+        /* Видео и Сетка */
         .main-video { width: 100%; height: 400px; background: #000; border-radius: 20px; overflow: hidden; margin-bottom: 30px; border: 5px solid var(--blue); }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-        .card { background: var(--blue); border: 2px solid var(--main); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 14px; }
+        .card { background: var(--blue); border: 2px solid var(--main); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; font-weight: bold; }
         .card:hover { background: var(--main); color: white; transform: scale(1.05); }
         .card span { font-size: 30px; display: block; margin-bottom: 5px; }
 
-        /* Редактор */
+        /* Редактор с выбором +/- */
         #editor { display: none; background: #f9f9f9; padding: 25px; border-radius: 20px; border: 2px solid var(--main); }
-        .q-block { background: white; padding: 20px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .ans-group { padding-left: 20px; border-left: 3px solid var(--main); margin-top: 10px; }
-        .btn-add { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 20px; }
-
-        /* Игра */
-        #game-zone { display: none; text-align: center; }
-        .game-screen { background: var(--blue); padding: 30px; border-radius: 25px; min-height: 350px; border: 3px solid var(--main); position: relative; }
-        .btn-play { background: var(--main); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .q-block { background: white; padding: 20px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; }
+        .ans-row { display: flex; align-items: center; gap: 10px; margin: 5px 0; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
         
-        /* Механика Крота и Лабиринта */
-        .maze-area { width: 100%; height: 300px; background: #eee; position: relative; border-radius: 10px; overflow: hidden; }
-        .player { width: 30px; height: 30px; background: var(--main); position: absolute; border-radius: 5px; transition: 0.1s; }
+        /* Кнопки выбора правильности */
+        .check-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ccc; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #eee; }
+        .check-btn.active-plus { background: #27ae60; color: white; border-color: #27ae60; }
+        .check-btn.active-minus { background: #e74c3c; color: white; border-color: #e74c3c; }
+
+        .btn-play { background: var(--main); color: white; border: none; padding: 15px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; width: 100%; }
+        #game-zone { display: none; text-align: center; }
+        .game-screen { background: var(--blue); padding: 30px; border-radius: 25px; min-height: 300px; border: 3px solid var(--main); }
     </style>
 </head>
 <body>
@@ -47,40 +46,34 @@
         <div class="main-video">
             <iframe width="100%" height="100%" src="https://www.youtube.com/embed/S_8q0sO1RMo" frameborder="0" allowfullscreen></iframe>
         </div>
-        <div class="grid">
-            <div class="card" onclick="openEditor('Викторина', '📝')"><span>📝</span>Викторина</div>
-            <div class="card" onclick="openEditor('Анаграмма', '🔠')"><span>🔠</span>Анаграмма</div>
-            <div class="card" onclick="openEditor('Колесо', '🎡')"><span>🎡</span>Колесо</div>
-            <div class="card" onclick="openEditor('Сопоставить', '🔗')"><span>🔗</span>Сопоставить</div>
-            <div class="card" onclick="openEditor('Закончи фразу', '✍️')"><span>✍️</span>Закончи фразу</div>
-            <div class="card" onclick="openEditor('Ударь крота', '🔨')"><span>🔨</span>Ударь крота</div>
-            <div class="card" onclick="openEditor('Карты', '🃏')"><span>🃏</span>Карты</div>
-            <div class="card" onclick="openEditor('Флеш карты', '📇')"><span>📇</span>Флеш карты</div>
-            <div class="card" onclick="openEditor('Найти пару', '👥')"><span>👥</span>Найти пару</div>
-            <div class="card" onclick="openEditor('Погоня в лабиринте', '👾')"><span>👾</span>Лабиринт</div>
-            <div class="card" onclick="openEditor('Откройте поле', '🎁')"><span>🎁</span>Открой поле</div>
-        </div>
+        <div class="grid" id="menu-grid">
+            </div>
     </div>
 
     <div id="editor">
-        <h2 id="ed-title">Настройка игры</h2>
-        <input type="text" id="topic-name" placeholder="Тема занятия (например: Не с глаголами)" style="border: 2px solid var(--main); font-size: 18px;">
+        <h2 id="ed-title">Настройка</h2>
+        <input type="text" id="topic-name" placeholder="Тема занятия" style="width:100%; padding:10px; margin-bottom:20px; border:2px solid var(--main); border-radius:8px;">
         
         <div id="q-list">
             <div class="q-block">
-                <label><b>Вопрос 1:</b></label>
                 <input type="text" class="q-text" placeholder="Введите вопрос">
-                <div class="ans-group">
-                    <input type="text" class="a-correct" placeholder="✅ Правильный ответ">
-                    <input type="text" class="a-wrong1" placeholder="❌ Неправильный ответ">
-                    <input type="text" class="a-wrong2" placeholder="❌ Неправильный ответ">
+                <div class="ans-row">
+                    <div class="check-btn active-plus" onclick="toggleAns(this)">+</div>
+                    <input type="text" class="ans-input" placeholder="Вариант ответа">
+                </div>
+                <div class="ans-row">
+                    <div class="check-btn active-minus" onclick="toggleAns(this)">-</div>
+                    <input type="text" class="ans-input" placeholder="Вариант ответа">
+                </div>
+                <div class="ans-row">
+                    <div class="check-btn active-minus" onclick="toggleAns(this)">-</div>
+                    <input type="text" class="ans-input" placeholder="Вариант ответа">
                 </div>
             </div>
         </div>
 
-        <button class="btn-add" onclick="addNewQuestion()">➕ Добавить еще вопрос</button>
-        <button class="btn-play" onclick="startGame()">ЗАПУСТИТЬ ИГРУ</button>
-        <button class="btn-play" style="background:#ccc; margin-top:10px" onclick="location.reload()">ОТМЕНА</button>
+        <button class="btn-play" style="background:#27ae60; margin-bottom:10px" onclick="addNewQuestion()">➕ Добавить вопрос</button>
+        <button class="btn-play" onclick="startGame()">ЗАПУСТИТЬ</button>
     </div>
 
     <div id="game-zone">
@@ -91,6 +84,18 @@
 </div>
 
 <script>
+    const games = [
+        {n:'Викторина', i:'📝'}, {n:'Анаграмма', i:'🔠'}, {n:'Колесо', i:'🎡'}, 
+        {n:'Сопоставить', i:'🔗'}, {n:'Закончи фразу', i:'✍️'}, {n:'Ударь крота', i:'🔨'}, 
+        {n:'Карты', i:'🃏'}, {n:'Флеш карты', i:'📇'}, {n:'Найти пару', i:'👥'}, 
+        {n:'Лабиринт', i:'👾'}, {n:'Открой поле', i:'🎁'}
+    ];
+
+    const menu = document.getElementById('menu-grid');
+    games.forEach(g => {
+        menu.innerHTML += `<div class="card" onclick="openEditor('${g.n}', '${g.i}')"><span>${g.i}</span>${g.n}</div>`;
+    });
+
     let mode = "";
 
     function openEditor(m, icon) {
@@ -100,44 +105,23 @@
         document.getElementById('ed-title').innerText = icon + " " + m;
     }
 
-    function addNewQuestion() {
-        const count = document.querySelectorAll('.q-block').length + 1;
-        const div = document.createElement('div');
-        div.className = 'q-block';
-        div.innerHTML = `<label><b>Вопрос ${count}:</b></label>
-            <input type="text" class="q-text" placeholder="Введите вопрос">
-            <div class="ans-group">
-                <input type="text" class="a-correct" placeholder="✅ Правильный ответ">
-                <input type="text" class="a-wrong1" placeholder="❌ Неправильный ответ">
-                <input type="text" class="a-wrong2" placeholder="❌ Неправильный ответ">
-            </div>`;
-        document.getElementById('q-list').appendChild(div);
+    function toggleAns(btn) {
+        if(btn.innerText === "+") {
+            btn.innerText = "-";
+            btn.className = "check-btn active-minus";
+        } else {
+            btn.innerText = "+";
+            btn.className = "check-btn active-plus";
+        }
     }
 
-    function aiSmartFill() {
-        const topic = document.getElementById('topic-name').value.toLowerCase();
-        const list = document.getElementById('q-list');
-        list.innerHTML = "";
-        
-        let examples = [
-            ["(не)навидеть", "ненавидеть", "не навидеть", "не-навидеть"],
-            ["(не)был", "не был", "небыл", "не-был"],
-            ["(не)годовать", "негодовать", "не годовать", "нигодовать"]
-        ];
-
-        examples.forEach((ex, i) => {
-            const div = document.createElement('div');
-            div.className = 'q-block';
-            div.innerHTML = `<label><b>Вопрос ${i+1}:</b></label>
-                <input type="text" class="q-text" value="${ex[0]}">
-                <div class="ans-group">
-                    <input type="text" class="a-correct" value="${ex[1]}">
-                    <input type="text" class="a-wrong1" value="${ex[2]}">
-                    <input type="text" class="a-wrong2" value="${ex[3]}">
-                </div>`;
-            list.appendChild(div);
-        });
-        alert("🤖 ИИ сгенерировал список вопросов и ответов!");
+    function addNewQuestion() {
+        const div = document.createElement('div');
+        div.className = 'q-block';
+        div.innerHTML = `<input type="text" class="q-text" placeholder="Введите вопрос">
+            <div class="ans-row"><div class="check-btn active-plus" onclick="toggleAns(this)">+</div><input type="text" class="ans-input" placeholder="Вариант ответа"></div>
+            <div class="ans-row"><div class="check-btn active-minus" onclick="toggleAns(this)">-</div><input type="text" class="ans-input" placeholder="Вариант ответа"></div>`;
+        document.getElementById('q-list').appendChild(div);
     }
 
     function startGame() {
@@ -146,23 +130,32 @@
         document.getElementById('game-title').innerText = mode;
         const screen = document.getElementById('game-content');
         
-        const firstQ = document.querySelector('.q-text').value;
-        const firstA = document.querySelector('.a-correct').value;
+        // Берем первый вопрос для примера
+        const qText = document.querySelector('.q-text').value;
+        const answers = document.querySelectorAll('.q-block:first-child .ans-row');
+        
+        let html = `<h3>${qText}</h3><div style="display:flex; flex-direction:column; gap:10px;">`;
+        answers.forEach(row => {
+            const val = row.querySelector('.ans-input').value;
+            const isCorrect = row.querySelector('.check-btn').innerText === "+";
+            html += `<button class="card" onclick="alert('${isCorrect ? "✅ Верно!" : "❌ Ошибка!"}')">${val}</button>`;
+        });
+        html += `</div>`;
+        screen.innerHTML = html;
+    }
 
-        if (mode === 'Погоня в лабиринте') {
-            screen.innerHTML = `<p>Используй стрелки, чтобы собрать: <b>${firstA}</b></p>
-                <div class="maze-area"><div class="player" id="p" style="top:50px; left:50px;"></div></div>`;
-        } else if (mode === 'Колесо') {
-            screen.innerHTML = `<div style="width:200px; height:200px; border:5px solid var(--main); border-radius:50%; margin:auto; transition:3s;" id="wheel">🎡</div>
-                <button class="btn-play" onclick="document.getElementById('wheel').style.transform='rotate(1800deg)'">КРУТИТЬ</button>
-                <p>Вопрос: ${firstQ}</p>`;
-        } else {
-            screen.innerHTML = `<h3>${firstQ}</h3>
-                <button class="card" style="width:100%" onclick="alert('Верно!')">${firstA}</button>
-                <button class="card" style="width:100%; margin-top:10px" onclick="alert('Ошибка!')">${document.querySelector('.a-wrong1').value}</button>`;
-        }
+    function aiSmartFill() {
+        // Умное заполнение для примера
+        document.getElementById('topic-name').value = "Не с глаголами";
+        const blocks = document.querySelectorAll('.q-block');
+        blocks[0].querySelector('.q-text').value = "Как пишется (не)хотеть?";
+        const inputs = blocks[0].querySelectorAll('.ans-input');
+        inputs[0].value = "не хотеть";
+        inputs[1].value = "нехотеть";
+        alert("🤖 ИИ заполнил пример!");
     }
 </script>
 </body>
 </html>
+
 
