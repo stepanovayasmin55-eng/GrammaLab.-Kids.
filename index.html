@@ -3,211 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GrammaLab Studio — Полный доступ</title>
+    <title>GrammaLab Pro + Audio</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --bg: #f0f4f8; --main: #00a2ff; --dark: #0077b6; --gold: #ffeb3b; --green: #2ecc71; --red: #e74c3c; --purple: #9b59b6; }
-        
-        html, body { 
-            height: 100%; margin: 0; padding: 0; background: var(--bg); 
-            font-family: 'Segoe UI', sans-serif; overflow-x: hidden; -webkit-overflow-scrolling: touch; 
-        }
-
-        header { 
-            background: var(--main); padding: 15px; color: white; display: flex; 
-            justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000;
-        }
-
-        .scroll-wrapper { padding: 15px; padding-bottom: 80px; }
-        h2 { color: var(--dark); font-size: 1.1rem; border-left: 4px solid var(--main); padding-left: 10px; margin: 20px 0 10px; }
-
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .card { 
-            background: white; border: 2px solid var(--main); border-radius: 12px; 
-            padding: 15px; text-align: center; font-weight: bold; font-size: 13px;
-        }
-        .card span { display: block; font-size: 24px; margin-bottom: 5px; }
-        .pop-card { background: #fff9c4; border-color: #fbc02d; }
-
-        .screen { display: none; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: 10px; }
+        :root { --bg: #f0f4f8; --main: #00a2ff; --dark: #0077b6; --gold: #ffcc00; --green: #2ecc71; --red: #e74c3c; --white: #ffffff; }
+        html, body { height: 100%; margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; -webkit-overflow-scrolling: touch; }
+        header { background: var(--main); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .scroll-wrapper { padding: 15px; padding-bottom: 50px; }
+        .screen { display: none; background: var(--white); border-radius: 25px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 10px; }
         .active { display: block; }
-
-        .game-btn { 
-            display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid var(--main); 
-            border-radius: 10px; background: white; font-size: 16px; font-weight: bold; cursor: pointer;
-        }
-
-        input { width: 100%; box-sizing: border-box; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
-        
-        .share-box { 
-            background: #eee; padding: 10px; border-radius: 8px; font-size: 10px; 
-            word-break: break-all; margin-top: 10px; display: none; border: 1px dashed #999; 
-        }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .card { background: white; border: 2px solid var(--main); border-radius: 18px; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; }
+        .game-btn { display: block; width: 100%; padding: 18px; margin: 12px 0; border: 3px solid var(--main); border-radius: 15px; background: white; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .timer-bar { height: 8px; background: #eee; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+        #timer-fill { height: 100%; background: linear-gradient(to right, var(--main), var(--green)); width: 100%; transition: width 0.1s linear; }
+        .correct { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
+        .shake { animation: shake 0.3s; border-color: var(--red) !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ccc; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight: bold;">💎 GrammaLab</div>
-    <div style="display: flex; gap: 5px;">
-        <button onclick="importGame()" style="background:var(--purple); color:white; border:none; padding:8px 12px; border-radius:8px; font-size:12px;">📥 Вставить</button>
-        <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 12px; border-radius:8px; font-size:12px;">🏠</button>
-    </div>
+    <div style="font-weight: bold;">💎 GrammaLab Audio</div>
+    <div style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 10px;">🏆 Рекорд: <span id="top-score">0</span></div>
 </header>
 
 <div class="scroll-wrapper">
     <div id="main-screen" class="screen active">
-        <button onclick="runAI()" style="width:100%; background:var(--gold); border:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:10px;">✨ Мастер ИИ (Создать вопрос)</button>
-        
-        <h2>🔥 Популярные</h2>
+        <h2>🔥 Темы</h2>
         <div class="grid">
-            <div class="card pop-card" onclick="loadPop('не_с_глаголами')"><span>🚫</span>Не с глаголами</div>
-            <div class="card pop-card" onclick="loadPop('спряжения')"><span>🔄</span>Спряжения</div>
-            <div class="card pop-card" onclick="loadPop('прямая_речь')"><span>💬</span>Прямая речь</div>
-            <div class="card pop-card" onclick="loadPop('местоимения')"><span>👤</span>Местоимения</div>
+            <div class="card" onclick="start('не_с_глаголами')"><span>🚫</span>Не с глаг.</div>
+            <div class="card" onclick="start('спряжения')"><span>🔄</span>Спряжения</div>
         </div>
-
-        <h2>🛠 Все шаблоны (11)</h2>
-        <div class="grid">
-            <div class="card" onclick="openEd('Викторина')"><span>📝</span>Викторина</div>
-            <div class="card" onclick="openEd('Крот')"><span>🔨</span>Крот</div>
-            <div class="card" onclick="openEd('Колесо')"><span>🎡</span>Колесо</div>
-            <div class="card" onclick="openEd('Анаграмма')"><span>🔠</span>Анаграмма</div>
-            <div class="card" onclick="openEd('Карты')"><span>🃏</span>Карты</div>
-            <div class="card" onclick="openEd('Пары')"><span>👥</span>Пары</div>
-            <div class="card" onclick="openEd('Лабиринт')"><span>👾</span>Лабиринт</div>
-            <div class="card" onclick="openEd('Погоня')"><span>🏃</span>Погоня</div>
-            <div class="card" onclick="openEd('Фраза')"><span>✍️</span>Фраза</div>
-            <div class="card" onclick="openEd('Флеш-карты')"><span>💡</span>Карточки</div>
-            <div class="card" onclick="openEd('Сопоставление')"><span>↔️</span>Связи</div>
-        </div>
-    </div>
-
-    <div id="editor" class="screen">
-        <h3 id="ed-title">Настройка</h3>
-        <div id="q-list"></div>
-        <button class="game-btn" style="background:var(--green); color:white; border:none;" onclick="startCustom()">▶️ ИГРАТЬ</button>
-        <button class="game-btn" style="background:var(--purple); color:white; border:none;" onclick="exportGame()">💾 Копировать код игры</button>
-        <div id="copy-box" class="share-box"></div>
+        <h2>🕹 Шаблоны (11)</h2>
+        <div class="grid" id="templates-grid"></div>
+        <button class="game-btn" style="margin-top:20px; background:var(--gold); border:none;" onclick="openEditor()">🛠 Свой урок</button>
     </div>
 
     <div id="game-zone" class="screen">
-        <div id="q-text" style="font-size:20px; text-align:center; font-weight:bold; margin-bottom:20px;"></div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px;"><span>Таймер 30с</span><span id="seconds-left">30s</span></div>
+        <div class="timer-bar"><div id="timer-fill"></div></div>
+        <div id="q-text" style="font-size:22px; text-align:center; font-weight:bold; margin-bottom:20px;"></div>
         <div id="options-box"></div>
-        <div id="feedback" style="text-align:center; font-weight:bold; height:20px;"></div>
-        <button id="next-btn" class="game-btn" style="display:none; background:var(--main); color:white;" onclick="nextQ()">Дальше →</button>
+        <button id="next-btn" class="game-btn" style="display:none; background:var(--main); color:white;" onclick="nextStep()">Дальше →</button>
     </div>
 
-    <div id="result-screen" class="screen">
-        <h2 style="text-align:center; border:none;">Итоги:</h2>
-        <div style="font-size: 40px; color: var(--main); font-weight: bold; text-align: center;" id="final-score"></div>
-        <div id="error-list" style="margin: 20px 0; padding: 10px; border-top: 1px solid #eee;"></div>
+    <div id="editor" class="screen">
+        <h3>Новый урок</h3>
+        <input type="text" id="ed-q" placeholder="Вопрос">
+        <input type="text" id="ed-a" placeholder="Верный ответ">
+        <input type="text" id="ed-w" placeholder="Ложный ответ">
+        <button class="game-btn" style="background:var(--green); color:white;" onclick="runCustom()">СТАРТ</button>
+        <button class="game-btn" onclick="location.reload()">ОТМЕНА</button>
+    </div>
+
+    <div id="result-screen" class="screen" style="text-align:center;">
+        <div style="font-size:50px;" id="final-stars"></div>
+        <div style="font-size:40px; font-weight:bold; color:var(--main);" id="final-score"></div>
+        <div id="error-log" style="margin:20px 0;"></div>
         <button class="game-btn" onclick="location.reload()">В МЕНЮ</button>
     </div>
 </div>
 
 <script>
-    let qs = []; let idx = 0; let score = 0; let errs = []; let currentMode = "";
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(freq, type, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
 
-    const data = {
-        'не_с_глаголами': [{q:'(не)навидеть', a:'ненавидеть', w:'не навидеть'}, {q:'(не)был', a:'не был', w:'небыл'}],
-        'спряжения': [{q:'строить', a:'2 спр', w:'1 спр'}, {q:'брить', a:'1 спр', w:'2 спр'}],
-        'прямая_речь': [{q:'А: "П"', a:'двоеточие', w:'тире'}],
-        'местоимения': [{q:'Дательный (Я)', a:'мне', w:'меня'}]
+    const sound = {
+        correct: () => { playSound(660, 'sine', 0.2); setTimeout(()=>playSound(880, 'sine', 0.3), 100); },
+        wrong: () => { playSound(150, 'sawtooth', 0.4); },
+        tick: () => { playSound(400, 'sine', 0.05); },
+        win: () => { [523, 659, 783, 1046].forEach((f, i) => setTimeout(() => playSound(f, 'sine', 0.4), i*150)); }
     };
 
-    function openEd(m) {
-        currentMode = m;
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('editor').classList.add('active');
-        document.getElementById('q-list').innerHTML = `
-            <input type="text" id="cust-q" placeholder="Вопрос">
-            <input type="text" id="cust-a" placeholder="Правильный ответ">
-            <input type="text" id="cust-w" placeholder="Неправильный ответ">
-        `;
+    let questions = [], curIdx = 0, points = 0, fails = [], timerInterval, timeLeft = 300;
+
+    const library = {
+        'не_с_глаголами': [{q:'(не)навидеть', a:'ненавидеть', w:'не навидеть'}, {q:'(не)был', a:'не был', w:'небыл'}],
+        'спряжения': [{q:'строить', a:'2 спр', w:'1 спр'}, {q:'брить', a:'1 спр', w:'2 спр'}]
+    };
+
+    document.getElementById('top-score').innerText = localStorage.getItem('gl_record') || 0;
+
+    const icons = ["📝","🔨","🎡","🔠","🃏","👥","👾","🏃","✍️","💡","↔️"];
+    icons.forEach((ico, i) => {
+        const d = document.createElement('div'); d.className = 'card'; d.innerHTML = `<span>${ico}</span>`;
+        d.onclick = () => openEditor(); document.getElementById('templates-grid').appendChild(d);
+    });
+
+    function start(key) { questions = library[key]; initGame(); }
+    function openEditor() { showScreen('editor'); }
+    function runCustom() { 
+        const q=document.getElementById('ed-q').value, a=document.getElementById('ed-a').value, w=document.getElementById('ed-w').value;
+        if(q && a) { questions = [{q, a, w}]; initGame(); }
     }
 
-    function runAI() {
-        const topic = prompt("Тема для ИИ:");
-        if(topic) {
-            document.getElementById('cust-q').value = "Вопрос про " + topic;
-            document.getElementById('cust-a').value = "Правильно";
-            document.getElementById('cust-w').value = "Ошибка";
-            alert("ИИ заполнил поля!");
-        }
+    function initGame() { 
+        curIdx=0; points=0; fails=[]; 
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        showScreen('game-zone'); renderQ(); 
     }
 
-    function exportGame() {
-        const q = document.getElementById('cust-q').value;
-        const a = document.getElementById('cust-a').value;
-        const w = document.getElementById('cust-w').value;
-        if(!q || !a) return alert("Заполни поля!");
-        const gameObj = { m: currentMode, q, a, w };
-        const code = btoa(unescape(encodeURIComponent(JSON.stringify(gameObj))));
-        const box = document.getElementById('copy-box');
-        box.innerText = code;
-        box.style.display = "block";
-        alert("Код в серой рамке! Скопируй его.");
-    }
-
-    function importGame() {
-        const code = prompt("Вставь код игры:");
-        if(!code) return;
-        try {
-            const res = JSON.parse(decodeURIComponent(escape(atob(code))));
-            openEd(res.m);
-            document.getElementById('cust-q').value = res.q;
-            document.getElementById('cust-a').value = res.a;
-            document.getElementById('cust-w').value = res.w;
-            alert("Игра загружена!");
-        } catch(e) { alert("Ошибка кода!"); }
-    }
-
-    function loadPop(k) { qs = data[k]; startSession(); }
-    
-    function startCustom() {
-        const q = document.getElementById('cust-q').value;
-        const a = document.getElementById('cust-a').value;
-        const w = document.getElementById('cust-w').value;
-        if(q && a) { qs = [{q, a, w}]; startSession(); }
-    }
-
-    function startSession() {
-        idx = 0; score = 0; errs = [];
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('game-zone').classList.add('active');
-        render();
-    }
-
-    function render() {
-        const cur = qs[idx];
-        document.getElementById('q-text').innerText = cur.q;
-        document.getElementById('feedback').innerText = "";
+    function renderQ() {
+        clearInterval(timerInterval); timeLeft = 300; updateUI();
+        const item = questions[curIdx];
+        document.getElementById('q-text').innerText = item.q;
         document.getElementById('next-btn').style.display = "none";
-        const box = document.getElementById('options-box');
-        box.innerHTML = "";
-        [{t:cur.a, c:true}, {t:cur.w, c:false}].sort(() => Math.random()-0.5).forEach(o => {
-            const b = document.createElement('button');
-            b.className = 'game-btn';
-            b.innerText = o.t;
+        const box = document.getElementById('options-box'); box.innerHTML = "";
+        
+        [{t:item.a, c:true}, {t:item.w, c:false}].sort(()=>Math.random()-0.5).forEach(o => {
+            const b = document.createElement('button'); b.className = 'game-btn'; b.innerText = o.t;
             b.onclick = () => {
-                if(o.c) { score++; document.getElementById('feedback').innerText = "✅ Верно!"; }
-                else { errs.push(`<b>${cur.q}</b>: надо было <i>${cur.a}</i>`); document.getElementById('feedback').innerText = "❌ Ошибка!"; }
-                document.querySelectorAll('#options-box button').forEach(btn => btn.disabled = true);
+                clearInterval(timerInterval);
+                document.querySelectorAll('.game-btn').forEach(btn => btn.disabled = true);
+                if(o.c) { points++; b.classList.add('correct'); sound.correct(); }
+                else { b.classList.add('shake'); fails.push(item.q); sound.wrong(); }
                 document.getElementById('next-btn').style.display = "block";
             };
             box.appendChild(b);
         });
+
+        timerInterval = setInterval(() => {
+            timeLeft--; updateUI();
+            if(timeLeft < 50) sound.tick();
+            if(timeLeft <= 0) { clearInterval(timerInterval); sound.wrong(); nextStep(); }
+        }, 100);
     }
 
-    function nextQ() {
-        idx++;
-        if(idx < qs.length) render();
-        else {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('result-screen').classList.add('active');
-            document.getElementById('final-score').innerText = score + " / " + qs.length;
-            document.getElementById('error-list').innerHTML = "<b>Работа над ошибками:</b><br><br>" + (errs.join('<br><br>') || "Идеально! Ошибок нет.");
+    function updateUI() {
+        document.getElementById('timer-fill').style.width = (timeLeft/3) + "%";
+        document.getElementById('seconds-left').innerText = Math.ceil(timeLeft/10) + "s";
+    }
+
+    function nextStep() { curIdx++; if(curIdx < questions.length) renderQ(); else finish(); }
+
+    function finish() {
+        showScreen('result-screen');
+        document.getElementById('final-score').innerText = `${points} / ${questions.length}`;
+        if(points === questions.length) { 
+            document.getElementById('final-stars').innerText = "⭐️⭐️⭐️"; 
+            sound.win(); confetti({particleCount:150});
+        } else {
+            document.getElementById('final-stars').innerText = "⭐️";
         }
+        let r = parseInt(localStorage.getItem('gl_record') || 0);
+        if(points > r) localStorage.setItem('gl_record', points);
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     }
 </script>
 </body>
