@@ -3,96 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GrammaLab Kids</title>
+    <title>GrammaLab Studio — Полный доступ</title>
     <style>
-        :root { --bg: #f0f4f8; --main: #00a2ff; --dark: #0077b6; --gold: #ffeb3b; --green: #2ecc71; --red: #e74c3c; }
+        :root { --bg: #f0f4f8; --main: #00a2ff; --dark: #0077b6; --gold: #ffeb3b; --green: #2ecc71; --red: #e74c3c; --purple: #9b59b6; }
         
-        /* Исправление прокрутки */
         html, body { 
-            height: 100%; 
-            margin: 0; 
-            padding: 0; 
-            background: var(--bg); 
-            font-family: 'Segoe UI', sans-serif;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* Плавный скролл для iPhone */
+            height: 100%; margin: 0; padding: 0; background: var(--bg); 
+            font-family: 'Segoe UI', sans-serif; overflow-x: hidden; -webkit-overflow-scrolling: touch; 
         }
 
         header { 
-            background: var(--main); 
-            padding: 15px; 
-            color: white; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000;
+            background: var(--main); padding: 15px; color: white; display: flex; 
+            justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000;
         }
 
-        /* Главный контейнер, который точно будет листаться */
-        .scroll-wrapper {
-            padding: 15px;
-            padding-bottom: 100px; /* Запас снизу */
-        }
-
+        .scroll-wrapper { padding: 15px; padding-bottom: 80px; }
         h2 { color: var(--dark); font-size: 1.1rem; border-left: 4px solid var(--main); padding-left: 10px; margin: 20px 0 10px; }
 
-        /* Сетка */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 10px; 
-        }
-
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .card { 
-            background: white; 
-            border: 2px solid var(--main); 
-            border-radius: 12px; 
-            padding: 15px; 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 13px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: white; border: 2px solid var(--main); border-radius: 12px; 
+            padding: 15px; text-align: center; font-weight: bold; font-size: 13px;
         }
-        
         .card span { display: block; font-size: 24px; margin-bottom: 5px; }
         .pop-card { background: #fff9c4; border-color: #fbc02d; }
 
-        /* Экраны */
         .screen { display: none; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: 10px; }
         .active { display: block; }
 
-        /* Кнопки игры */
         .game-btn { 
-            display: block; 
-            width: 100%; 
-            padding: 15px; 
-            margin: 10px 0; 
-            border: 2px solid var(--main); 
-            border-radius: 10px; 
-            background: white; 
-            font-size: 16px; 
-            font-weight: bold;
+            display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid var(--main); 
+            border-radius: 10px; background: white; font-size: 16px; font-weight: bold; cursor: pointer;
         }
 
-        .score-box { font-size: 40px; color: var(--main); font-weight: bold; text-align: center; margin: 20px 0; }
+        input { width: 100%; box-sizing: border-box; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
         
-        input { width: 100%; box-sizing: border-box; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; }
+        .share-box { 
+            background: #eee; padding: 10px; border-radius: 8px; font-size: 10px; 
+            word-break: break-all; margin-top: 10px; display: none; border: 1px dashed #999; 
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight: bold;">💎 GrammaLab Studio</div>
-    <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">🏠 Меню</button>
+    <div style="font-weight: bold;">💎 GrammaLab</div>
+    <div style="display: flex; gap: 5px;">
+        <button onclick="importGame()" style="background:var(--purple); color:white; border:none; padding:8px 12px; border-radius:8px; font-size:12px;">📥 Вставить</button>
+        <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 12px; border-radius:8px; font-size:12px;">🏠</button>
+    </div>
 </header>
 
 <div class="scroll-wrapper">
     <div id="main-screen" class="screen active">
-        <button onclick="runAI()" style="width:100%; background:var(--gold); border:none; padding:12px; border-radius:10px; font-weight:bold; margin-bottom:10px;">✨ Мастер ИИ (Создать вопрос)</button>
+        <button onclick="runAI()" style="width:100%; background:var(--gold); border:none; padding:15px; border-radius:12px; font-weight:bold; margin-bottom:10px;">✨ Мастер ИИ (Создать вопрос)</button>
         
-        <h2>🔥 Популярные (Готовые)</h2>
+        <h2>🔥 Популярные</h2>
         <div class="grid">
             <div class="card pop-card" onclick="loadPop('не_с_глаголами')"><span>🚫</span>Не с глаголами</div>
             <div class="card pop-card" onclick="loadPop('спряжения')"><span>🔄</span>Спряжения</div>
@@ -100,19 +66,19 @@
             <div class="card pop-card" onclick="loadPop('местоимения')"><span>👤</span>Местоимения</div>
         </div>
 
-        <h2>🛠 Шаблоны (Все 11 игр)</h2>
+        <h2>🛠 Все шаблоны (11)</h2>
         <div class="grid">
             <div class="card" onclick="openEd('Викторина')"><span>📝</span>Викторина</div>
-            <div class="card" onclick="openEd('Крот')"><span>🔨</span>Ударь крота</div>
+            <div class="card" onclick="openEd('Крот')"><span>🔨</span>Крот</div>
             <div class="card" onclick="openEd('Колесо')"><span>🎡</span>Колесо</div>
             <div class="card" onclick="openEd('Анаграмма')"><span>🔠</span>Анаграмма</div>
             <div class="card" onclick="openEd('Карты')"><span>🃏</span>Карты</div>
-            <div class="card" onclick="openEd('Пары')"><span>👥</span>Найти пару</div>
+            <div class="card" onclick="openEd('Пары')"><span>👥</span>Пары</div>
             <div class="card" onclick="openEd('Лабиринт')"><span>👾</span>Лабиринт</div>
             <div class="card" onclick="openEd('Погоня')"><span>🏃</span>Погоня</div>
-            <div class="card" onclick="openEd('Фраза')"><span>✍️</span>Закончи фразу</div>
-            <div class="card" onclick="openEd('Флеш-карты')"><span>💡</span>Флеш-карты</div>
-            <div class="card" onclick="openEd('Сопоставление')"><span>↔️</span>Сопоставить</div>
+            <div class="card" onclick="openEd('Фраза')"><span>✍️</span>Фраза</div>
+            <div class="card" onclick="openEd('Флеш-карты')"><span>💡</span>Карточки</div>
+            <div class="card" onclick="openEd('Сопоставление')"><span>↔️</span>Связи</div>
         </div>
     </div>
 
@@ -120,6 +86,8 @@
         <h3 id="ed-title">Настройка</h3>
         <div id="q-list"></div>
         <button class="game-btn" style="background:var(--green); color:white; border:none;" onclick="startCustom()">▶️ ИГРАТЬ</button>
+        <button class="game-btn" style="background:var(--purple); color:white; border:none;" onclick="exportGame()">💾 Копировать код игры</button>
+        <div id="copy-box" class="share-box"></div>
     </div>
 
     <div id="game-zone" class="screen">
@@ -130,15 +98,15 @@
     </div>
 
     <div id="result-screen" class="screen">
-        <h2 style="text-align:center; border:none;">Твой результат:</h2>
-        <div class="score-box" id="final-score"></div>
-        <div id="error-list" style="font-size:14px; color:var(--red);"></div>
+        <h2 style="text-align:center; border:none;">Итоги:</h2>
+        <div style="font-size: 40px; color: var(--main); font-weight: bold; text-align: center;" id="final-score"></div>
+        <div id="error-list" style="margin: 20px 0; padding: 10px; border-top: 1px solid #eee;"></div>
         <button class="game-btn" onclick="location.reload()">В МЕНЮ</button>
     </div>
 </div>
 
 <script>
-    let qs = []; let idx = 0; let score = 0; let errs = [];
+    let qs = []; let idx = 0; let score = 0; let errs = []; let currentMode = "";
 
     const data = {
         'не_с_глаголами': [{q:'(не)навидеть', a:'ненавидеть', w:'не навидеть'}, {q:'(не)был', a:'не был', w:'небыл'}],
@@ -147,23 +115,55 @@
         'местоимения': [{q:'Дательный (Я)', a:'мне', w:'меня'}]
     };
 
-    function loadPop(k) { qs = data[k]; startSession(); }
-
     function openEd(m) {
+        currentMode = m;
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('editor').classList.add('active');
         document.getElementById('q-list').innerHTML = `
             <input type="text" id="cust-q" placeholder="Вопрос">
-            <input type="text" id="cust-a" placeholder="Верно">
-            <input type="text" id="cust-w" placeholder="Неверно">
+            <input type="text" id="cust-a" placeholder="Правильный ответ">
+            <input type="text" id="cust-w" placeholder="Неправильный ответ">
         `;
     }
 
     function runAI() {
-        const topic = prompt("Введите тему для ИИ:");
-        if(topic) alert("ИИ составил вопрос по теме " + topic + "! Проверьте редактор.");
+        const topic = prompt("Тема для ИИ:");
+        if(topic) {
+            document.getElementById('cust-q').value = "Вопрос про " + topic;
+            document.getElementById('cust-a').value = "Правильно";
+            document.getElementById('cust-w').value = "Ошибка";
+            alert("ИИ заполнил поля!");
+        }
     }
 
+    function exportGame() {
+        const q = document.getElementById('cust-q').value;
+        const a = document.getElementById('cust-a').value;
+        const w = document.getElementById('cust-w').value;
+        if(!q || !a) return alert("Заполни поля!");
+        const gameObj = { m: currentMode, q, a, w };
+        const code = btoa(unescape(encodeURIComponent(JSON.stringify(gameObj))));
+        const box = document.getElementById('copy-box');
+        box.innerText = code;
+        box.style.display = "block";
+        alert("Код в серой рамке! Скопируй его.");
+    }
+
+    function importGame() {
+        const code = prompt("Вставь код игры:");
+        if(!code) return;
+        try {
+            const res = JSON.parse(decodeURIComponent(escape(atob(code))));
+            openEd(res.m);
+            document.getElementById('cust-q').value = res.q;
+            document.getElementById('cust-a').value = res.a;
+            document.getElementById('cust-w').value = res.w;
+            alert("Игра загружена!");
+        } catch(e) { alert("Ошибка кода!"); }
+    }
+
+    function loadPop(k) { qs = data[k]; startSession(); }
+    
     function startCustom() {
         const q = document.getElementById('cust-q').value;
         const a = document.getElementById('cust-a').value;
@@ -191,7 +191,7 @@
             b.innerText = o.t;
             b.onclick = () => {
                 if(o.c) { score++; document.getElementById('feedback').innerText = "✅ Верно!"; }
-                else { errs.push(cur.q + " -> " + cur.a); document.getElementById('feedback').innerText = "❌ Ошибка!"; }
+                else { errs.push(`<b>${cur.q}</b>: надо было <i>${cur.a}</i>`); document.getElementById('feedback').innerText = "❌ Ошибка!"; }
                 document.querySelectorAll('#options-box button').forEach(btn => btn.disabled = true);
                 document.getElementById('next-btn').style.display = "block";
             };
@@ -206,7 +206,7 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('result-screen').classList.add('active');
             document.getElementById('final-score').innerText = score + " / " + qs.length;
-            document.getElementById('error-list').innerHTML = "<b>Ошибки:</b><br>" + (errs.join('<br>') || "Нет!");
+            document.getElementById('error-list').innerHTML = "<b>Работа над ошибками:</b><br><br>" + (errs.join('<br><br>') || "Идеально! Ошибок нет.");
         }
     }
 </script>
