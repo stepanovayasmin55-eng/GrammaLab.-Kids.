@@ -3,138 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GrammaLab Secret Edition</title>
+    <title>GrammaLab Ultimate 11-в-1</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root { --bg: #f0f4f8; --main: #00a2ff; --green: #2ecc71; --red: #e74c3c; --white: #ffffff; --gold: #ffcc00; --purple: #a29bfe; }
-        html, body { min-height: 100%; margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        header { background: var(--main); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        html, body { min-height: 100%; margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        header { background: var(--main); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .scroll-wrapper { padding: 15px; padding-bottom: 120px; }
-        .screen { display: none; background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .screen { display: none; background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .active { display: block; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .card { background: white; border: 2px solid var(--main); border-radius: 15px; padding: 12px; text-align: center; font-weight: bold; cursor: pointer; }
-        .q-group { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 25px; border: 2px solid #ddd; position: relative; }
+        
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .card { background: white; border: 3px solid var(--main); border-radius: 18px; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .card:active { transform: scale(0.9); }
+        .card span { display: block; font-size: 35px; margin-bottom: 5px; }
+
+        .q-group { background: #f9f9f9; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 2px solid #ddd; position: relative; }
         .del-q { position: absolute; top: -10px; right: -10px; background: var(--red); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; }
         .ans-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
-        .radio-custom { width: 22px; height: 22px; accent-color: var(--green); cursor: pointer; }
-        input[type="text"] { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #eee; font-size: 15px; box-sizing: border-box; }
-        .q-input { margin-bottom: 10px; font-weight: bold; background: #f0f9ff; border-color: var(--main) !important; }
-        .game-btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 3px solid var(--main); border-radius: 12px; background: white; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .ans-ctrl { display: flex; gap: 10px; margin-top: 10px; }
-        .s-btn { padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: #f9f9f9; font-size: 12px; }
-        .mode-toggle { display: flex; background: #eee; padding: 5px; border-radius: 10px; margin-bottom: 15px; }
-        .m-btn { flex: 1; padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .m-active { background: var(--main); color: white; }
-        .timer-bar { height: 8px; background: #eee; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid #ccc; font-size: 16px; }
+        .q-input { font-weight: bold; border-color: var(--main) !important; width: 100%; box-sizing: border-box; }
+        
+        .game-btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; background: var(--main); color: white; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #0081cc; }
+        .game-btn:active { transform: translateY(3px); box-shadow: none; }
+
+        /* КОЛЕСО */
+        #wheel-wrap { position: relative; width: 280px; height: 280px; margin: 20px auto; }
+        #wheel-canvas { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #333; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+        #pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: var(--red); clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 20; }
+
+        /* ТАЙМЕР */
+        .timer-bar { height: 10px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #timer-fill { height: 100%; background: var(--green); width: 100%; transition: width 0.1s linear; }
-        .shake { animation: shake 0.3s; border-color: var(--red) !important; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .flash-card { perspective: 1000px; height: 200px; cursor: pointer; }
+        .flash-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flipped { transform: rotateY(180deg); }
+        .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 20px; font-size: 24px; padding: 20px; box-sizing: border-box; border: 4px solid var(--main); }
+        .back { background: var(--main); color: white; transform: rotateY(180deg); }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight:bold;">💎 GrammaLab Pro</div>
-    <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 15px; border-radius:8px;">🏠</button>
+    <div style="font-weight:bold; font-size:20px;">💎 GrammaLab Multi</div>
+    <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 15px; border-radius:10px; font-weight:bold;">🏠</button>
 </header>
 
 <div class="scroll-wrapper">
     <div id="main-screen" class="screen active">
-        <button class="game-btn" style="background:var(--purple); color:white; border:none;" onclick="importGame()">📥 Вставить код и ИГРАТЬ</button>
-        <h2>🔥 Популярные</h2>
+        <button class="game-btn" style="background:var(--purple); box-shadow: 0 4px 0 #8e85eb;" onclick="importGame()">📥 Вставить код (Сразу игра)</button>
+        <h2 style="text-align:center;">🕹 Выбери режим</h2>
         <div class="grid">
-            <div class="card" style="background:#fff9c4;" onclick="startPop('не_с_глаголами')"><span>🚫</span>Не с глаг.</div>
-            <div class="card" style="background:#fff9c4;" onclick="startPop('спряжения')"><span>🔄</span>Спряжения</div>
+            <div class="card" onclick="setMode('quiz')"><span>📝</span>Викторина</div>
+            <div class="card" onclick="setMode('wheel')"><span>🎡</span>Колесо</div>
+            <div class="card" onclick="setMode('cards')"><span>💡</span>Карточки</div>
+            <div class="card" onclick="setMode('mole')"><span>🔨</span>Крот</div>
+            <div class="card" onclick="setMode('quiz')"><span>👾</span>Лабиринт</div>
+            <div class="card" onclick="setMode('quiz')"><span>🏃</span>Погоня</div>
         </div>
-        <h2>🕹 Шаблоны</h2>
-        <div class="grid" id="tpl-grid"></div>
     </div>
 
     <div id="editor" class="screen">
-        <h3>Настройка игры</h3>
-        <div class="mode-toggle">
-            <button id="t-on" class="m-btn m-active" onclick="toggleT(true)">С таймером</button>
-            <button id="t-off" class="m-btn" onclick="toggleT(false)">Без таймера</button>
-        </div>
-        <button class="game-btn" style="background:var(--gold); border:none;" onclick="runAI()">✨ Мастер ИИ</button>
+        <h3 id="mode-title" style="text-align:center; color:var(--main);">Настройка</h3>
+        <button class="game-btn" style="background:var(--gold); color:black; box-shadow: 0 4px 0 #e6b800;" onclick="runAI()">✨ Мастер ИИ</button>
         <div id="questions-factory"></div>
-        <button class="game-btn" style="background:var(--green); color:white; border:none; font-size:20px;" onclick="addQuestion()">➕</button>
-        <button class="game-btn" style="background:var(--main); color:white; border:none;" onclick="runGame()">▶️ ИГРАТЬ СЕЙЧАС</button>
-        <button class="game-btn" style="background:#eee;" onclick="exportGame()">💾 Копировать код для друзей</button>
-        <textarea id="copy-box" style="width:100%; height:50px; display:none; margin-top:10px;"></textarea>
+        <button class="game-btn" style="background:var(--green); box-shadow: 0 4px 0 #27ae60;" onclick="addQuestion()">➕ Вопрос</button>
+        <button class="game-btn" onclick="runGame()">▶️ ИГРАТЬ</button>
+        <button class="game-btn" style="background:#666; box-shadow: 0 4px 0 #444;" onclick="exportGame()">💾 Код для друзей</button>
+        <textarea id="copy-box" style="width:100%; display:none; margin-top:10px; border-radius:10px; padding:10px;"></textarea>
     </div>
 
     <div id="game-zone" class="screen">
         <div id="timer-ui" class="timer-bar"><div id="timer-fill"></div></div>
-        <div id="q-text" style="font-size:22px; text-align:center; font-weight:bold; margin-bottom:20px;"></div>
-        <div id="options-box"></div>
-        <button id="next-btn" class="game-btn" style="display:none; background:var(--main); color:white;" onclick="nextStep()">Дальше →</button>
+        
+        <div id="wheel-ui" style="display:none;">
+            <div id="wheel-wrap"><div id="pointer"></div><canvas id="wheel-canvas"></canvas></div>
+            <button class="game-btn" id="spin-btn" onclick="spinIt()">КРУТИТЬ!</button>
+        </div>
+
+        <div id="cards-ui" style="display:none;">
+            <div class="flash-card" onclick="this.children[0].classList.toggle('flipped')">
+                <div class="flash-inner">
+                    <div class="front" id="card-q">Вопрос</div>
+                    <div class="back" id="card-a">Ответ</div>
+                </div>
+            </div>
+            <p style="text-align:center; color: #888;">Нажми на карту, чтобы перевернуть</p>
+        </div>
+
+        <div id="q-area">
+            <div id="q-text" style="font-size:22px; text-align:center; font-weight:bold; margin:20px 0;"></div>
+            <div id="options-box"></div>
+        </div>
+        
+        <button id="next-btn" class="game-btn" style="display:none; background:var(--purple); box-shadow:0 4px 0 #8e85eb;" onclick="nextStep()">Дальше →</button>
     </div>
 
     <div id="result-screen" class="screen" style="text-align:center;">
-        <div id="final-stars" style="font-size:50px;"></div>
-        <div id="final-score" style="font-size:40px; font-weight:bold; color:var(--main);"></div>
-        <div id="error-log" style="text-align:left; margin-top:15px; font-size:14px; color:var(--red);"></div>
+        <div id="final-stars" style="font-size:60px;"></div>
+        <div id="final-score" style="font-size:30px; font-weight:bold; color:var(--main); margin:20px 0;"></div>
         <button class="game-btn" onclick="location.reload()">В МЕНЮ</button>
     </div>
 </div>
 
 <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSnd(f, d) {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-        o.frequency.value = f; g.gain.value = 0.1;
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + d);
+    let questions = [], curIdx = 0, score = 0, gameMode = 'quiz', timerInt, timeLeft = 300;
+    const canvas = document.getElementById('wheel-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function setMode(m) {
+        gameMode = m;
+        showScreen('editor');
+        document.getElementById('mode-title').innerText = "Режим: " + m.toUpperCase();
+        if(questions.length === 0) addQuestion();
     }
 
-    let questions = [], curIdx = 0, score = 0, fails = [], timerInt, timeLeft = 300, useTimer = true;
-
-    const icons = ["📝 Викторина","🔨 Крот","🎡 Колесо","🔠 Буквы","🃏 Карты","👥 Пары","👾 Лабиринт","🏃 Погоня","✍️ Фраза","💡 Карточки","↔️ Связи"];
-    icons.forEach(i => {
-        const d = document.createElement('div'); d.className = 'card'; d.innerHTML = `<span>${i.split(' ')[0]}</span>${i.split(' ')[1]}`;
-        d.onclick = () => { showScreen('editor'); if(document.querySelectorAll('.q-group').length===0) addQuestion(); };
-        document.getElementById('tpl-grid').appendChild(d);
-    });
-
-    function toggleT(v) {
-        useTimer = v;
-        document.getElementById('t-on').classList.toggle('m-active', v);
-        document.getElementById('t-off').classList.toggle('m-active', !v);
-    }
-
-    function addQuestion(qText="", ansArray=[], correctIdx=0) {
-        const qId = "q_" + Math.random().toString(36).substr(2, 9);
+    function addQuestion(qText="", ans=["", ""], cIdx=0) {
+        const qId = "q_" + Math.random().toString(36).substr(2, 5);
         const div = document.createElement('div');
         div.className = 'q-group';
         div.innerHTML = `
             <button class="del-q" onclick="this.parentElement.remove()">✕</button>
-            <input type="text" class="q-input" placeholder="Вопрос" value="${qText}">
-            <div class="answers-list"></div>
-            <div class="ans-ctrl">
-                <button class="s-btn" onclick="addAnswerRow(this.parentElement.previousElementSibling, '${qId}')">+ ответ</button>
-                <button class="s-btn" onclick="removeAnswerRow(this.parentElement.previousElementSibling)">- ответ</button>
-            </div>
+            <input type="text" class="q-input" placeholder="Напиши вопрос..." value="${qText}">
+            <div class="ans-list"></div>
+            <button class="game-btn" style="font-size:12px; padding:5px; width:100px; background:#ddd; color:black; box-shadow:none;" onclick="addAnsRow(this.previousElementSibling, '${qId}')">+ Ответ</button>
         `;
         document.getElementById('questions-factory').appendChild(div);
-        const list = div.querySelector('.answers-list');
-        if(ansArray.length === 0) ansArray = ["", ""];
-        ansArray.forEach((text, i) => addAnswerRow(list, qId, text, i === correctIdx));
+        const list = div.querySelector('.ans-list');
+        ans.forEach((t, i) => addAnsRow(list, qId, t, i === cIdx));
     }
 
-    function addAnswerRow(container, qId, text="", checked=false) {
-        const row = document.createElement('div');
-        row.className = 'ans-row';
-        row.innerHTML = `<input type="radio" name="${qId}" class="radio-custom" ${checked?'checked':''}>
-                         <input type="text" class="ans-text" placeholder="Вариант" value="${text}">`;
-        container.appendChild(row);
+    function addAnsRow(cont, qId, t="", chk=false) {
+        const r = document.createElement('div');
+        r.className = 'ans-row';
+        r.innerHTML = `<input type="radio" name="${qId}" ${chk?'checked':''}>
+                       <input type="text" placeholder="Вариант" value="${t}">`;
+        cont.appendChild(r);
     }
 
-    function removeAnswerRow(container) { if(container.children.length > 1) container.lastElementChild.remove(); }
-
-    function runAI() { addQuestion("Как пишется слово?", ["Правильно", "Ошибка"], 0); }
+    function runAI() { 
+        addQuestion("Как пишется слово?", ["Верно", "Ошибка"], 0);
+        window.scrollTo(0, document.body.scrollHeight);
+    }
 
     function runGame() {
         questions = [];
@@ -142,98 +154,115 @@
             const q = g.querySelector('.q-input').value;
             const opts = [];
             g.querySelectorAll('.ans-row').forEach(row => {
-                const txt = row.querySelector('.ans-text').value;
-                const isCorrect = row.querySelector('.radio-custom').checked;
-                if(txt) opts.push({ text: txt, isCorrect: isCorrect });
+                const txt = row.querySelector('input[type="text"]').value;
+                if(txt) opts.push({ text: txt, isCorrect: row.querySelector('input[type="radio"]').checked });
             });
-            if(q && opts.length > 0) questions.push({ q, options: opts });
+            if(q) questions.push({ q, opts });
         });
-        if(questions.length > 0) { startSession(); }
-        else alert("Заполни вопросы!");
+        if(questions.length) startPlay();
     }
 
-    function startSession() { curIdx = 0; score = 0; fails = []; showScreen('game-zone'); renderQ(); }
+    function startPlay() {
+        curIdx = 0; score = 0;
+        showScreen('game-zone');
+        renderStep();
+    }
 
-    function renderQ() {
+    function renderStep() {
         clearInterval(timerInt);
-        const item = questions[curIdx];
-        document.getElementById('q-text').innerText = item.q;
-        document.getElementById('next-btn').style.display = "none";
-        const box = document.getElementById('options-box'); box.innerHTML = "";
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('wheel-ui').style.display = (gameMode === 'wheel') ? 'block' : 'none';
+        document.getElementById('cards-ui').style.display = (gameMode === 'cards') ? 'block' : 'none';
+        document.getElementById('q-area').style.display = (gameMode === 'wheel' || gameMode === 'cards') ? 'none' : 'block';
         
-        if(useTimer) {
-            document.getElementById('timer-ui').style.display = 'block';
-            timeLeft = 300;
-            timerInt = setInterval(() => {
-                timeLeft--; document.getElementById('timer-fill').style.width = (timeLeft/3) + "%";
-                if(timeLeft <= 0) { clearInterval(timerInt); handleAns(false, null, item); }
-            }, 100);
-        } else { document.getElementById('timer-ui').style.display = 'none'; }
+        const item = questions[curIdx];
 
-        item.options.forEach(o => {
-            const b = document.createElement('button'); b.className = 'game-btn'; b.innerText = o.text;
-            b.onclick = () => handleAns(o.isCorrect, b, item); box.appendChild(b);
-        });
-    }
-
-    function handleAns(c, b, item) {
-        clearInterval(timerInt);
-        document.querySelectorAll('#options-box button').forEach(btn => btn.disabled = true);
-        if(c) { score++; if(b) b.style.backgroundColor = "#d4edda"; playSnd(600, 0.2); }
-        else { if(b) b.classList.add('shake'); fails.push(`В "${item.q}" ошибка.`); playSnd(200, 0.3); }
-        document.getElementById('next-btn').style.display = "block";
-    }
-
-    function nextStep() { curIdx++; if(curIdx < questions.length) renderQ(); else finish(); }
-
-    function finish() {
-        showScreen('result-screen');
-        document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
-        if(score === questions.length) { document.getElementById('final-stars').innerText = "⭐️⭐️⭐️"; confetti(); }
-        else { document.getElementById('final-stars').innerText = "⭐️"; }
-        document.getElementById('error-log').innerHTML = fails.join('<br>');
-    }
-
-    function exportGame() {
-        const data = { questions: [], useTimer: useTimer };
-        document.querySelectorAll('.q-group').forEach(g => {
-            const answers = []; let cIdx = 0;
-            g.querySelectorAll('.ans-row').forEach((row, i) => {
-                answers.push(row.querySelector('.ans-text').value);
-                if(row.querySelector('.radio-custom').checked) cIdx = i;
+        if(gameMode === 'wheel') {
+            drawWheel();
+            document.getElementById('spin-btn').disabled = false;
+        } else if(gameMode === 'cards') {
+            document.querySelector('.flash-inner').classList.remove('flipped');
+            document.getElementById('card-q').innerText = item.q;
+            document.getElementById('card-a').innerText = item.opts.find(o => o.isCorrect).text;
+            document.getElementById('next-btn').style.display = 'block';
+        } else {
+            document.getElementById('q-text').innerText = item.q;
+            const box = document.getElementById('options-box'); box.innerHTML = "";
+            item.opts.forEach(o => {
+                const b = document.createElement('button'); b.className = 'game-btn';
+                b.style.background = "white"; b.style.color = "black"; b.style.border = "2px solid #ddd"; b.style.boxShadow = "none";
+                b.innerText = o.text;
+                b.onclick = () => {
+                    if(o.isCorrect) { score++; b.style.background = "#2ecc71"; b.style.color = "white"; }
+                    else { b.style.background = "#e74c3c"; b.style.color = "white"; }
+                    document.querySelectorAll('#options-box button').forEach(btn => btn.disabled = true);
+                    document.getElementById('next-btn').style.display = 'block';
+                };
+                box.appendChild(b);
             });
-            data.questions.push({ q: g.querySelector('.q-input').value, a: answers, c: cIdx });
-        });
-        const code = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-        const area = document.getElementById('copy-box'); area.value = code; area.style.display = 'block'; area.select();
-        alert("Код для друга готов! Он внизу.");
-    }
-
-    function importGame() {
-        const c = prompt("Вставь код игры:");
-        if(c) {
-            try {
-                const data = JSON.parse(decodeURIComponent(escape(atob(c))));
-                questions = [];
-                useTimer = data.useTimer;
-                data.questions.forEach(d => {
-                    const opts = d.a.map((txt, i) => ({ text: txt, isCorrect: i === d.c }));
-                    questions.push({ q: d.q, options: opts });
-                });
-                startSession(); // СРАЗУ ИГРАЕМ!
-            } catch(e) { alert("Ошибка!"); }
         }
     }
 
-    function startPop(k) {
-        useTimer = true; questions = [];
-        const data = k === 'не_с_глаголами' ? 
-            [{q:'(не)был', a:'не был', w:'небыл'}, {q:'(не)навидеть', a:'ненавидеть', w:'не навидеть'}] :
-            [{q:'строить', a:'2 спр', w:'1 спр'}];
-        data.forEach(d => {
-            questions.push({ q: d.q, options: [{text: d.a, isCorrect: true}, {text: d.w, isCorrect: false}].sort(()=>Math.random()-0.5) });
+    function drawWheel() {
+        canvas.width = 280; canvas.height = 280;
+        const slice = (Math.PI * 2) / questions.length;
+        questions.forEach((q, i) => {
+            ctx.beginPath();
+            ctx.fillStyle = i % 2 ? '#00a2ff' : '#ffcc00';
+            ctx.moveTo(140, 140);
+            ctx.arc(140, 140, 130, slice * i, slice * (i+1));
+            ctx.fill();
+            ctx.save();
+            ctx.translate(140, 140);
+            ctx.rotate(slice * i + slice/2);
+            ctx.fillStyle = "white"; ctx.font = "bold 20px Arial";
+            ctx.fillText(i+1, 80, 10);
+            ctx.restore();
         });
-        startSession();
+    }
+
+    function spinIt() {
+        document.getElementById('spin-btn').disabled = true;
+        const randDeg = 1800 + Math.random() * 1000;
+        canvas.style.transform = `rotate(${randDeg}deg)`;
+        setTimeout(() => {
+            document.getElementById('q-area').style.display = 'block';
+            document.getElementById('q-text').innerText = "ВОПРОС: " + questions[curIdx].q;
+            const box = document.getElementById('options-box'); box.innerHTML = "";
+            questions[curIdx].opts.forEach(o => {
+                const b = document.createElement('button'); b.className = 'game-btn'; b.innerText = o.text;
+                b.onclick = () => { if(o.isCorrect) score++; nextStep(); };
+                box.appendChild(b);
+            });
+        }, 4100);
+    }
+
+    function nextStep() {
+        curIdx++;
+        if(curIdx < questions.length) renderStep();
+        else {
+            showScreen('result-screen');
+            document.getElementById('final-score').innerText = `Счет: ${score} / ${questions.length}`;
+            document.getElementById('final-stars').innerText = (score === questions.length) ? "⭐️⭐️⭐️" : "⭐️";
+            if(score === questions.length) confetti();
+        }
+    }
+
+    function exportGame() {
+        const data = { m: gameMode, q: questions };
+        const code = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+        const box = document.getElementById('copy-box');
+        box.value = code; box.style.display = 'block'; box.select();
+        alert("Код скопирован!");
+    }
+
+    function importGame() {
+        const c = prompt("Вставь код:");
+        if(c) {
+            const data = JSON.parse(decodeURIComponent(escape(atob(c))));
+            gameMode = data.m; questions = data.q;
+            startPlay();
+        }
     }
 
     function showScreen(id) {
