@@ -3,41 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GrammaLab Constructor Pro</title>
+    <title>GrammaLab — Master Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root { --bg: #f0f4f8; --main: #00a2ff; --green: #2ecc71; --red: #e74c3c; --white: #ffffff; --gold: #ffcc00; --purple: #a29bfe; }
-        
         html, body { min-height: 100%; margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
-        header { background: var(--main); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        
+        header { background: var(--main); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
         .scroll-wrapper { padding: 15px; padding-bottom: 120px; }
         .screen { display: none; background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .active { display: block; }
-
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .card { background: white; border: 2px solid var(--main); border-radius: 15px; padding: 12px; text-align: center; font-weight: bold; cursor: pointer; }
         .card span { display: block; font-size: 22px; }
-
-        /* РЕДАКТОР ВОПРОСОВ */
-        .q-group { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 30px; border: 2px solid #ddd; position: relative; }
-        .del-q { position: absolute; top: -10px; right: -10px; background: var(--red); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; z-index: 5; }
-        
+        .q-group { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 25px; border: 2px solid #ddd; position: relative; }
+        .del-q { position: absolute; top: -10px; right: -10px; background: var(--red); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; }
         .ans-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
         .radio-custom { width: 22px; height: 22px; cursor: pointer; accent-color: var(--green); }
-        
-        input[type="text"] { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #eee; font-size: 15px; width: 100%; box-sizing: border-box; }
-        input[type="text"]:focus { border-color: var(--main); outline: none; background: #fff; }
-        .q-input { margin-bottom: 15px; font-weight: bold; border-color: var(--main) !important; background: #f0f9ff; }
-
-        .ans-controls { display: flex; gap: 10px; margin-top: 10px; }
-        .small-btn { padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: #f9f9f9; font-size: 12px; cursor: pointer; }
-
+        input[type="text"] { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #eee; font-size: 15px; box-sizing: border-box; }
+        .q-input { margin-bottom: 10px; font-weight: bold; background: #f0f9ff; border-color: var(--main) !important; }
         .game-btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 3px solid var(--main); border-radius: 12px; background: white; font-size: 16px; font-weight: bold; cursor: pointer; }
-        
+        .ans-ctrl { display: flex; gap: 10px; margin-top: 10px; }
+        .s-btn { padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: #f9f9f9; font-size: 12px; cursor: pointer; }
         .timer-bar { height: 8px; background: #eee; border-radius: 10px; margin: 10px 0; overflow: hidden; }
         #timer-fill { height: 100%; background: var(--green); width: 100%; transition: width 0.1s linear; }
-        
         .shake { animation: shake 0.3s; border-color: var(--red) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
@@ -46,7 +34,7 @@
 
 <header>
     <div style="font-weight:bold;">💎 GrammaLab Pro</div>
-    <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">🏠</button>
+    <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 15px; border-radius:8px;">🏠 Меню</button>
 </header>
 
 <div class="scroll-wrapper">
@@ -65,8 +53,10 @@
         <h3>Конструктор</h3>
         <button class="game-btn" style="background:var(--gold); border:none;" onclick="runAI()">✨ Мастер ИИ</button>
         <div id="questions-factory"></div>
-        <button class="game-btn" style="background:var(--green); color:white; border:none; font-size:24px;" onclick="addQuestion()">➕ Добавить вопрос</button>
+        <button class="game-btn" style="background:var(--green); color:white; border:none; font-size:20px;" onclick="addQuestion()">➕ Добавить вопрос</button>
         <button class="game-btn" style="background:var(--main); color:white; border:none;" onclick="runGame()">▶️ ИГРАТЬ</button>
+        <button class="game-btn" style="background:#eee;" onclick="exportGame()">💾 Копировать код</button>
+        <textarea id="copy-box" style="width:100%; height:50px; display:none; font-size:10px; margin-top:10px;"></textarea>
     </div>
 
     <div id="game-zone" class="screen">
@@ -79,7 +69,7 @@
     <div id="result-screen" class="screen" style="text-align:center;">
         <div id="final-stars" style="font-size:50px;"></div>
         <div id="final-score" style="font-size:40px; font-weight:bold; color:var(--main);"></div>
-        <div id="error-log" style="text-align:left; margin-top:15px; font-size:14px;"></div>
+        <div id="error-log" style="text-align:left; margin-top:15px; font-size:14px; color:var(--red);"></div>
         <button class="game-btn" onclick="location.reload()">В МЕНЮ</button>
     </div>
 </div>
@@ -103,41 +93,42 @@
         document.getElementById('tpl-grid').appendChild(d);
     });
 
-    function addQuestion(qText="", ansArray=["", ""]) {
-        const qId = Date.now() + Math.random();
+    function addQuestion(qText="", ansArray=[], correctIdx=0) {
+        const qId = "q_" + Math.random().toString(36).substr(2, 9);
         const div = document.createElement('div');
         div.className = 'q-group';
         div.innerHTML = `
             <button class="del-q" onclick="this.parentElement.remove()">✕</button>
             <input type="text" class="q-input" placeholder="Вопрос" value="${qText}">
             <div class="answers-list"></div>
-            <div class="ans-controls">
-                <button class="small-btn" onclick="addAnswer(this.parentElement.previousElementSibling, '${qId}')">+ ответ</button>
-                <button class="small-btn" onclick="removeAnswer(this.parentElement.previousElementSibling)">- ответ</button>
+            <div class="ans-ctrl">
+                <button class="s-btn" onclick="addAnswerRow(this.parentElement.previousElementSibling, '${qId}')">+ ответ</button>
+                <button class="s-btn" onclick="removeAnswerRow(this.parentElement.previousElementSibling)">- ответ</button>
             </div>
         `;
         document.getElementById('questions-factory').appendChild(div);
         const list = div.querySelector('.answers-list');
-        ansArray.forEach((text, i) => addAnswer(list, qId, text, i === 0));
+        if(ansArray.length === 0) ansArray = ["", ""];
+        ansArray.forEach((text, i) => addAnswerRow(list, qId, text, i === correctIdx));
     }
 
-    function addAnswer(container, qId, text="", isFirst=false) {
+    function addAnswerRow(container, qId, text="", checked=false) {
         const row = document.createElement('div');
         row.className = 'ans-row';
         row.innerHTML = `
-            <input type="radio" name="correct_${qId}" class="radio-custom" ${isFirst?'checked':''}>
+            <input type="radio" name="${qId}" class="radio-custom" ${checked?'checked':''}>
             <input type="text" class="ans-text" placeholder="Вариант" value="${text}">
         `;
         container.appendChild(row);
     }
 
-    function removeAnswer(container) {
+    function removeAnswerRow(container) {
         if(container.children.length > 1) container.lastElementChild.remove();
     }
 
     function runAI() {
-        const t = prompt("Тема:");
-        if(t) addQuestion("Как правильно пишется ("+t+")?", ["Верно", "С ошибкой", "Не знаю"]);
+        const t = prompt("Тема для ИИ (например: жи-ши):");
+        if(t) addQuestion("Как правильно пишется слово с " + t + "?", ["Правильно", "С ошибкой", "Другой вариант"], 0);
     }
 
     function runGame() {
@@ -153,7 +144,7 @@
             if(q && opts.length > 0) questions.push({ q, options: opts });
         });
         if(questions.length > 0) { curIdx = 0; score = 0; fails = []; showScreen('game-zone'); renderQ(); }
-        else alert("Заполни вопросы!");
+        else alert("Заполни вопросы и отметь правильные ответы!");
     }
 
     function renderQ() {
@@ -162,13 +153,11 @@
         document.getElementById('q-text').innerText = item.q;
         document.getElementById('next-btn').style.display = "none";
         const box = document.getElementById('options-box'); box.innerHTML = "";
-        
         timeLeft = 300;
         timerInt = setInterval(() => {
             timeLeft--; document.getElementById('timer-fill').style.width = (timeLeft/3) + "%";
             if(timeLeft <= 0) { clearInterval(timerInt); handleAns(false, null, item); }
         }, 100);
-
         item.options.forEach(o => {
             const b = document.createElement('button'); b.className = 'game-btn'; b.innerText = o.text;
             b.onclick = () => handleAns(o.isCorrect, b, item); box.appendChild(b);
@@ -193,13 +182,41 @@
         document.getElementById('error-log').innerHTML = fails.join('<br>');
     }
 
+    function exportGame() {
+        const data = [];
+        document.querySelectorAll('.q-group').forEach(g => {
+            const answers = [];
+            let cIdx = 0;
+            g.querySelectorAll('.ans-row').forEach((row, i) => {
+                answers.push(row.querySelector('.ans-text').value);
+                if(row.querySelector('.radio-custom').checked) cIdx = i;
+            });
+            data.push({ q: g.querySelector('.q-input').value, a: answers, c: cIdx });
+        });
+        const code = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+        const area = document.getElementById('copy-box'); area.value = code; area.style.display = 'block'; area.select();
+        alert("Код скопирован в текстовое поле снизу!");
+    }
+
+    function importGame() {
+        const c = prompt("Вставь код игры:");
+        if(c) {
+            try {
+                const data = JSON.parse(decodeURIComponent(escape(atob(c))));
+                document.getElementById('questions-factory').innerHTML = "";
+                data.forEach(d => addQuestion(d.q, d.a, d.c));
+                showScreen('editor');
+            } catch(e) { alert("Ошибка в коде!"); }
+        }
+    }
+
     function startPop(k) {
         questions = [];
         const data = k === 'не_с_глаголами' ? 
-            [{q:'(не)был', a:'не был', w:'небыл'}, {q:'(не)навидеть', a:'ненавидеть', w:'не навидеть'}] :
-            [{q:'строить', a:'2 спр', w:'1 спр'}];
+            [{q:'(не)был', a:'не был', w:'небыл'}, {q:'(не)навидеть', a:'ненавидеть', w:'не навидеть'}, {q:'(не)знаю', a:'не знаю', w:'незнаю'}] :
+            [{q:'строить', a:'2 спр', w:'1 спр'}, {q:'брить', a:'1 спр', w:'2 спр'}];
         data.forEach(d => {
-            questions.push({ q: d.q, options: [{text: d.a, isCorrect: true}, {text: d.w, isCorrect: false}] });
+            questions.push({ q: d.q, options: [{text: d.a, isCorrect: true}, {text: d.w, isCorrect: false}].sort(()=>Math.random()-0.5) });
         });
         curIdx = 0; score = 0; fails = []; showScreen('game-zone'); renderQ();
     }
