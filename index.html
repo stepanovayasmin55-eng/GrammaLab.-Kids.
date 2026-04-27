@@ -3,96 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GrammaLab Pro 2026</title>
+    <title>GrammaLab Ultimate (Share Edition)</title>
     <style>
-        :root { --main: #00a2ff; --bg: #f8fafc; --text: #1e293b; --ai: #6c5ce7; }
-        body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
-        
-        /* ШАПКА */
+        :root { --main: #00a2ff; --bg: #f8fafc; --text: #1e293b; --ai: #6c5ce7; --share: #2ecc71; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
         header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .logo { font-weight: 900; color: var(--main); font-size: 22px; }
 
-        /* ЭКРАНЫ */
-        .screen { display: none; padding: 20px; max-width: 500px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+        .screen { display: none; padding: 20px; max-width: 500px; margin: 0 auto; animation: fadeIn 0.4s ease; }
         .active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* МЕНЮ */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .card { background: white; padding: 25px 15px; border-radius: 24px; text-align: center; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
         .card:active { transform: scale(0.95); }
         .card span { display: block; font-size: 40px; margin-bottom: 10px; }
-        .card b { font-size: 14px; }
 
         /* ИГРОВОЕ ПОЛЕ */
-        #stage { background: white; border-radius: 30px; height: 350px; position: relative; border: 4px solid var(--main); overflow: hidden; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+        #stage { background: white; border-radius: 30px; height: 380px; position: relative; border: 4px solid var(--main); overflow: hidden; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
         
-        /* КРОТ */
-        .hole { width: 80px; height: 40px; background: #3d2b1f; border-radius: 50%; position: absolute; bottom: 40px; box-shadow: inset 0 8px 15px #000; }
-        .mole { width: 70px; height: 90px; background: #8d6e63; border-radius: 30px 30px 10px 10px; position: absolute; bottom: -100px; transition: 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; text-align: center; padding: 5px; cursor: pointer; }
-        .mole.up { bottom: 40px; }
-
         /* КНОПКИ */
-        .btn { padding: 16px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; width: 100%; margin: 8px 0; font-size: 16px; }
+        .btn { padding: 16px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; width: 100%; margin: 8px 0; font-size: 16px; transition: 0.2s; }
         .btn-main { background: var(--main); color: white; box-shadow: 0 4px 0 #0081cc; }
-        .btn-ai { background: var(--ai); color: white; margin-bottom: 20px; }
-        .btn-opt { background: white; border: 1px solid #e2e8f0; margin-bottom: 8px; }
+        .btn-ai { background: var(--ai); color: white; }
+        .btn-share { background: var(--share); color: white; box-shadow: 0 4px 0 #27ae60; font-size: 14px; }
 
-        /* РЕДАКТОР */
         .editor-item { background: white; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
-        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 10px; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 8px; box-sizing: border-box; }
+        
+        /* АНИМАЦИЯ КРОТА */
+        .mole { width: 70px; height: 90px; background: #8d6e63; border-radius: 30px 30px 10px 10px; position: absolute; bottom: -100px; transition: 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; text-align: center; border: 2px solid #5d4037; cursor: pointer; }
+        .mole.up { bottom: 40px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">GrammaLab</div>
-    <button onclick="location.reload()" style="background:none; border:none; font-size: 20px;">🏠</button>
+    <div class="logo">GrammaLab Pro</div>
+    <button onclick="location.reload()" style="background:none; border:none; font-size: 24px;">🏠</button>
 </header>
 
-<div id="m-screen" class="screen active">
+<div id="sc-menu" class="screen active">
     <div class="grid">
-        <div class="card" onclick="setMode('mole')"><span>🔨</span><b>Крот</b></div>
-        <div class="card" onclick="setMode('cards')"><span>💡</span><b>Карточки</b></div>
-        <div class="card" onclick="setMode('wheel')"><span>🎡</span><b>Колесо</b></div>
-        <div class="card" onclick="setMode('anagram')"><span>🔠</span><b>Слова</b></div>
+        <div class="card" onclick="openEditor('mole')"><span>🔨</span><b>Крот</b></div>
+        <div class="card" onclick="openEditor('plane')"><span>✈️</span><b>Погоня</b></div>
+        <div class="card" onclick="openEditor('wheel')"><span>🎡</span><b>Колесо</b></div>
+        <div class="card" onclick="openEditor('cards')"><span>💡</span><b>Карточки</b></div>
+        <div class="card" onclick="openEditor('anagram')"><span>🔠</span><b>Анаграмма</b></div>
+        <div class="card" onclick="openEditor('maze')"><span>👾</span><b>Лабиринт</b></div>
+        <div class="card" onclick="openEditor('slots')"><span>🎰</span><b>Автомат</b></div>
+        <div class="card" onclick="openEditor('pairs')"><span>👥</span><b>Пары</b></div>
+    </div>
+    <div style="margin-top: 20px;">
+        <button class="btn btn-share" onclick="importGame()">📥 ЗАГРУЗИТЬ КОД ОТ ДРУГА</button>
     </div>
 </div>
 
-<div id="e-screen" class="screen">
-    <h3 id="mode-name" style="text-align:center;"></h3>
-    <button class="btn btn-ai" onclick="runAI()">✨ Gemini: Написать вопросы</button>
+<div id="sc-editor" class="screen">
+    <h3 id="ed-title" style="text-align:center;"></h3>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn btn-ai" onclick="geminiAI()">✨ ИИ</button>
+        <button class="btn btn-share" onclick="exportGame()">📤 ДАТЬ КОД ДРУЗЬЯМ</button>
+    </div>
     <div id="factory"></div>
-    <button class="btn btn-main" onclick="start()">ИГРАТЬ ▶️</button>
+    <button class="btn btn-main" onclick="play()">ИГРАТЬ ▶️</button>
 </div>
 
-<div id="g-screen" class="screen">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:bold;">
-        <span id="score">СЧЕТ: 0</span>
-        <span id="q-text"></span>
-    </div>
+<div id="sc-game" class="screen">
     <div id="stage"></div>
     <div id="options"></div>
 </div>
 
 <script>
-    let mode = '', qs = [], cur = 0, pts = 0;
+    let mode = '', qs = [], cur = 0, score = 0;
 
-    const db = [
-        { q: "Как пишется (к..рова)?", a: ["о", "а", "и"], c: 0 },
-        { q: "7 x 8 = ?", a: ["56", "64", "48"], c: 0 },
-        { q: "Столица Казахстана?", a: ["Астана", "Алматы", "Актау"], c: 0 }
-    ];
-
-    function setMode(m) { 
-        mode = m; 
-        document.getElementById('m-screen').classList.remove('active');
-        document.getElementById('e-screen').classList.add('active');
-        document.getElementById('mode-name').innerText = m.toUpperCase();
-        if(!qs.length) addField();
+    // Функция передачи игры (Экспорт)
+    function exportGame() {
+        saveData(); // Собираем данные из полей
+        if(qs.length === 0) return alert("Сначала создай вопросы!");
+        const gameData = { m: mode, q: qs };
+        const code = btoa(unescape(encodeURIComponent(JSON.stringify(gameData)))); // Шифруем в текст
+        prompt("Скопируй этот код и отправь другу:", code);
     }
 
-    function addField(q="", a=["","",""], c=0) {
+    // Функция приема игры (Импорт)
+    function importGame() {
+        const code = prompt("Вставь код игры от друга:");
+        if(!code) return;
+        try {
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(code))));
+            mode = decoded.m;
+            qs = decoded.q;
+            alert("Игра загружена! Нажимай 'Играть'");
+            openEditor(mode, true);
+        } catch(e) { alert("Ошибка! Неверный код."); }
+    }
+
+    function openEditor(m, isImport = false) {
+        mode = m;
+        document.getElementById('sc-menu').classList.remove('active');
+        document.getElementById('sc-editor').classList.add('active');
+        document.getElementById('ed-title').innerText = mode.toUpperCase();
+        if(!isImport) { document.getElementById('factory').innerHTML = ""; qs = []; addQ(); }
+        else {
+            document.getElementById('factory').innerHTML = "";
+            qs.forEach(item => {
+                const answers = item.opts.map(o => o.t);
+                const correct = item.opts.findIndex(o => o.ok);
+                addQ(item.q, answers, correct);
+            });
+        }
+    }
+
+    function addQ(q="", a=["","",""], c=0) {
         const d = document.createElement('div'); d.className = 'editor-item';
         d.innerHTML = `<input type="text" placeholder="Вопрос" value="${q}" class="qi"><div class="al"></div>`;
         document.getElementById('factory').appendChild(d);
@@ -104,47 +128,46 @@
         });
     }
 
-    function runAI() {
-        const item = db[Math.floor(Math.random() * db.length)];
-        addField(item.q, item.a, item.c);
-    }
-
-    function start() {
+    function saveData() {
         qs = [];
-        document.querySelectorAll('.editor-item').forEach(el => {
-            const q = el.querySelector('.qi').value;
+        document.querySelectorAll('.editor-item').forEach(box => {
+            const q = box.querySelector('.qi').value;
             const opts = [];
-            el.querySelectorAll('.al > div').forEach(row => {
+            box.querySelectorAll('.al > div').forEach(row => {
                 opts.push({ t: row.querySelector('.ai').value, ok: row.querySelector('input').checked });
             });
             if(q) qs.push({q, opts});
         });
-        cur = 0; pts = 0;
-        document.getElementById('e-screen').classList.remove('active');
-        document.getElementById('g-screen').classList.add('active');
+    }
+
+    function geminiAI() {
+        addQ("Пример вопроса от ИИ?", ["Да", "Нет", "Может"], 0);
+    }
+
+    function play() {
+        saveData();
+        if(qs.length === 0) return alert("Добавь вопросы!");
+        cur = 0; score = 0;
+        document.getElementById('sc-editor').classList.remove('active');
+        document.getElementById('sc-game').classList.add('active');
         render();
     }
 
     function render() {
-        const it = qs[cur];
-        const st = document.getElementById('stage');
-        const op = document.getElementById('options');
+        const it = qs[cur]; const st = document.getElementById('stage'); const op = document.getElementById('options');
         st.innerHTML = ""; op.innerHTML = "";
-        document.getElementById('q-text').innerText = it.q;
-
+        
         if(mode === 'mole') {
             for(let i=0; i<3; i++) {
-                const h = document.createElement('div'); h.className = 'hole'; h.style.left = (40 + i*130) + "px";
-                const m = document.createElement('div'); m.className = 'mole';
-                m.innerText = it.opts[i%it.opts.length].t;
-                m.onclick = () => { if(it.opts[i%it.opts.length].ok) { pts++; alert("Верно!"); } next(); };
-                h.appendChild(m); st.appendChild(h);
-                setTimeout(() => m.classList.add('up'), 300 + i*300);
+                const m = document.createElement('div'); m.className = 'mole'; m.innerText = it.opts[i%it.opts.length].t;
+                m.style.left = (40 + i*130) + "px";
+                m.onclick = () => { if(it.opts[i%it.opts.length].ok) score++; next(); };
+                st.appendChild(m); setTimeout(() => m.classList.add('up'), 200);
             }
         } else {
             it.opts.forEach(o => {
-                const b = document.createElement('button'); b.className = 'btn btn-opt'; b.innerText = o.t;
-                b.onclick = () => { if(o.ok) pts++; next(); };
+                const b = document.createElement('button'); b.className = 'btn btn-main'; b.innerText = o.t;
+                b.onclick = () => { if(o.ok) score++; next(); };
                 op.appendChild(b);
             });
         }
@@ -152,9 +175,8 @@
 
     function next() {
         cur++;
-        document.getElementById('score').innerText = "СЧЕТ: " + pts;
         if(cur < qs.length) render();
-        else { alert("Игра окончена! Счет: " + pts); location.reload(); }
+        else { alert("Счет: " + score); location.reload(); }
     }
 </script>
 </body>
