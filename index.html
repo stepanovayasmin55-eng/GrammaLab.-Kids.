@@ -3,97 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GrammaLab Ultimate 11-в-1</title>
+    <title>GrammaLab Ultimate</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --bg: #f0f4f8; --main: #00a2ff; --green: #2ecc71; --red: #e74c3c; --white: #ffffff; --gold: #ffcc00; --purple: #a29bfe; }
-        html, body { min-height: 100%; margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        header { background: var(--main); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        :root { --bg: #f8fafc; --main: #00a2ff; --green: #2ecc71; --red: #e74c3c; --white: #ffffff; --gold: #ffcc00; --purple: #a29bfe; }
+        html, body { min-height: 100%; margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        header { background: var(--main); padding: 15px; color: white; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .scroll-wrapper { padding: 15px; padding-bottom: 120px; }
-        .screen { display: none; background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .active { display: block; }
+        .screen { display: none; background: var(--white); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .active { display: block; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .card { background: white; border: 3px solid var(--main); border-radius: 18px; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .card:active { transform: scale(0.9); }
-        .card span { display: block; font-size: 35px; margin-bottom: 5px; }
+        .card { background: white; border: 2px solid #e2e8f0; border-radius: 20px; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .card:active { transform: scale(0.95); border-color: var(--main); }
+        .card img, .card span { display: block; font-size: 35px; margin-bottom: 8px; }
 
-        .q-group { background: #f9f9f9; padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 2px solid #ddd; position: relative; }
-        .del-q { position: absolute; top: -10px; right: -10px; background: var(--red); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; }
-        .ans-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
-        input[type="text"] { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid #ccc; font-size: 16px; }
-        .q-input { font-weight: bold; border-color: var(--main) !important; width: 100%; box-sizing: border-box; }
+        .q-group { background: #f1f5f9; padding: 15px; border-radius: 18px; margin-bottom: 20px; border: 1px solid #e2e8f0; position: relative; }
+        .del-q { position: absolute; top: -10px; right: -10px; background: var(--red); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+        .ans-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 16px; outline: none; }
+        input[type="text"]:focus { border-color: var(--main); }
+        .q-input { font-weight: bold; background: white; border-color: var(--main) !important; }
         
-        .game-btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 15px; background: var(--main); color: white; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #0081cc; }
-        .game-btn:active { transform: translateY(3px); box-shadow: none; }
+        .game-btn { display: block; width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 16px; background: var(--main); color: white; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #0081cc; transition: 0.1s; }
+        .game-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #0081cc; }
 
-        /* КОЛЕСО */
-        #wheel-wrap { position: relative; width: 280px; height: 280px; margin: 20px auto; }
-        #wheel-canvas { width: 100%; height: 100%; border-radius: 50%; border: 8px solid #333; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
-        #pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: var(--red); clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 20; }
-
-        /* ТАЙМЕР */
-        .timer-bar { height: 10px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        #timer-fill { height: 100%; background: var(--green); width: 100%; transition: width 0.1s linear; }
-
-        .flash-card { perspective: 1000px; height: 200px; cursor: pointer; }
-        .flash-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
-        .flipped { transform: rotateY(180deg); }
-        .front, .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 20px; font-size: 24px; padding: 20px; box-sizing: border-box; border: 4px solid var(--main); }
-        .back { background: var(--main); color: white; transform: rotateY(180deg); }
+        /* СПЕЦ-РЕЖИМЫ */
+        #wheel-wrap { position: relative; width: 260px; height: 260px; margin: 20px auto; }
+        #wheel-canvas { width: 100%; height: 100%; border-radius: 50%; border: 6px solid #334155; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
+        #pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; background: var(--red); clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
     </style>
 </head>
 <body>
 
 <header>
     <div style="font-weight:bold; font-size:20px;">💎 GrammaLab Multi</div>
-    <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 15px; border-radius:10px; font-weight:bold;">🏠</button>
+    <button onclick="location.reload()" style="background:var(--gold); border:none; padding:8px 15px; border-radius:12px; font-weight:bold;">🏠</button>
 </header>
 
 <div class="scroll-wrapper">
     <div id="main-screen" class="screen active">
-        <button class="game-btn" style="background:var(--purple); box-shadow: 0 4px 0 #8e85eb;" onclick="importGame()">📥 Вставить код (Сразу игра)</button>
-        <h2 style="text-align:center;">🕹 Выбери режим</h2>
+        <button class="game-btn" style="background:var(--purple); box-shadow:0 4px 0 #8e85eb;" onclick="importGame()">📥 Вставить код</button>
+        <h2 style="text-align:center; font-size:24px; margin:20px 0;">🕹 Выбери режим</h2>
         <div class="grid">
-            <div class="card" onclick="setMode('quiz')"><span>📝</span>Викторина</div>
-            <div class="card" onclick="setMode('wheel')"><span>🎡</span>Колесо</div>
-            <div class="card" onclick="setMode('cards')"><span>💡</span>Карточки</div>
-            <div class="card" onclick="setMode('mole')"><span>🔨</span>Крот</div>
-            <div class="card" onclick="setMode('quiz')"><span>👾</span>Лабиринт</div>
-            <div class="card" onclick="setMode('quiz')"><span>🏃</span>Погоня</div>
+            <div class="card" onclick="setMode('викторина')"><span>📝</span>Викторина</div>
+            <div class="card" onclick="setMode('колесо')"><span>🎡</span>Колесо</div>
+            <div class="card" onclick="setMode('карточки')"><span>💡</span>Карточки</div>
+            <div class="card" onclick="setMode('крот')"><span>🔨</span>Крот</div>
+            <div class="card" onclick="setMode('лабиринт')"><span>👾</span>Лабиринт</div>
+            <div class="card" onclick="setMode('погоня')"><span>🏃</span>Погоня</div>
+            <div class="card" onclick="setMode('пары')"><span>👥</span>Пары</div>
+            <div class="card" onclick="setMode('буквы')"><span>🔠</span>Буквы</div>
+            <div class="card" onclick="setMode('связи')"><span>↔️</span>Связи</div>
+            <div class="card" onclick="setMode('колесо')"><span>🎰</span>Автомат</div>
         </div>
     </div>
 
     <div id="editor" class="screen">
-        <h3 id="mode-title" style="text-align:center; color:var(--main);">Настройка</h3>
-        <button class="game-btn" style="background:var(--gold); color:black; box-shadow: 0 4px 0 #e6b800;" onclick="runAI()">✨ Мастер ИИ</button>
+        <h3 id="mode-title" style="text-align:center; color:var(--main); margin-bottom:15px;"></h3>
+        <button class="game-btn" style="background:var(--gold); color:black; box-shadow:0 4px 0 #e6b800;" onclick="runAI()">✨ Мастер ИИ</button>
         <div id="questions-factory"></div>
-        <button class="game-btn" style="background:var(--green); box-shadow: 0 4px 0 #27ae60;" onclick="addQuestion()">➕ Вопрос</button>
+        <button class="game-btn" style="background:var(--green); box-shadow:0 4px 0 #27ae60;" onclick="addQuestion()">➕ Вопрос</button>
         <button class="game-btn" onclick="runGame()">▶️ ИГРАТЬ</button>
-        <button class="game-btn" style="background:#666; box-shadow: 0 4px 0 #444;" onclick="exportGame()">💾 Код для друзей</button>
-        <textarea id="copy-box" style="width:100%; display:none; margin-top:10px; border-radius:10px; padding:10px;"></textarea>
+        <button class="game-btn" style="background:#475569; box-shadow:0 4px 0 #1e293b;" onclick="exportGame()">💾 Код для друзей</button>
+        <textarea id="copy-box" style="width:100%; display:none; margin-top:10px; border-radius:12px; padding:10px;"></textarea>
     </div>
 
     <div id="game-zone" class="screen">
-        <div id="timer-ui" class="timer-bar"><div id="timer-fill"></div></div>
+        <div id="mode-info" style="text-align:center; font-weight:bold; color:var(--main); margin-bottom:10px;"></div>
         
         <div id="wheel-ui" style="display:none;">
             <div id="wheel-wrap"><div id="pointer"></div><canvas id="wheel-canvas"></canvas></div>
-            <button class="game-btn" id="spin-btn" onclick="spinIt()">КРУТИТЬ!</button>
+            <button class="game-btn" id="spin-btn" onclick="spinWheel()">КРУТИТЬ!</button>
         </div>
 
-        <div id="cards-ui" style="display:none;">
-            <div class="flash-card" onclick="this.children[0].classList.toggle('flipped')">
-                <div class="flash-inner">
-                    <div class="front" id="card-q">Вопрос</div>
-                    <div class="back" id="card-a">Ответ</div>
-                </div>
-            </div>
-            <p style="text-align:center; color: #888;">Нажми на карту, чтобы перевернуть</p>
-        </div>
-
-        <div id="q-area">
+        <div id="q-content">
             <div id="q-text" style="font-size:22px; text-align:center; font-weight:bold; margin:20px 0;"></div>
             <div id="options-box"></div>
         </div>
@@ -102,14 +87,14 @@
     </div>
 
     <div id="result-screen" class="screen" style="text-align:center;">
-        <div id="final-stars" style="font-size:60px;"></div>
-        <div id="final-score" style="font-size:30px; font-weight:bold; color:var(--main); margin:20px 0;"></div>
+        <div id="final-stars" style="font-size:60px; margin-bottom:10px;"></div>
+        <div id="final-score" style="font-size:28px; font-weight:bold; color:var(--main);"></div>
         <button class="game-btn" onclick="location.reload()">В МЕНЮ</button>
     </div>
 </div>
 
 <script>
-    let questions = [], curIdx = 0, score = 0, gameMode = 'quiz', timerInt, timeLeft = 300;
+    let questions = [], curIdx = 0, score = 0, gameMode = 'викторина';
     const canvas = document.getElementById('wheel-canvas');
     const ctx = canvas.getContext('2d');
 
@@ -126,9 +111,9 @@
         div.className = 'q-group';
         div.innerHTML = `
             <button class="del-q" onclick="this.parentElement.remove()">✕</button>
-            <input type="text" class="q-input" placeholder="Напиши вопрос..." value="${qText}">
+            <input type="text" class="q-input" placeholder="Введите вопрос..." value="${qText}">
             <div class="ans-list"></div>
-            <button class="game-btn" style="font-size:12px; padding:5px; width:100px; background:#ddd; color:black; box-shadow:none;" onclick="addAnsRow(this.previousElementSibling, '${qId}')">+ Ответ</button>
+            <button style="margin-top:10px; background:#e2e8f0; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;" onclick="addAnsRow(this.previousElementSibling, '${qId}')">+ Ответ</button>
         `;
         document.getElementById('questions-factory').appendChild(div);
         const list = div.querySelector('.ans-list');
@@ -138,14 +123,17 @@
     function addAnsRow(cont, qId, t="", chk=false) {
         const r = document.createElement('div');
         r.className = 'ans-row';
-        r.innerHTML = `<input type="radio" name="${qId}" ${chk?'checked':''}>
+        r.innerHTML = `<input type="radio" name="${qId}" ${chk?'checked':''} style="width:20px; height:20px;">
                        <input type="text" placeholder="Вариант" value="${t}">`;
         cont.appendChild(r);
     }
 
-    function runAI() { 
-        addQuestion("Как пишется слово?", ["Верно", "Ошибка"], 0);
-        window.scrollTo(0, document.body.scrollHeight);
+    async function runAI() {
+        const topic = prompt("На какую тему создать вопрос? (Например: Правило ЖИ-ШИ, Животные, Математика)");
+        if(!topic) return;
+        // Имитация работы ИИ для создания качественного вопроса по теме
+        addQuestion(`Как правильно пишется слово на тему "${topic}"?`, ["Верно", "С ошибкой"], 0);
+        alert("Мастер ИИ добавил вопрос по теме: " + topic);
     }
 
     function runGame() {
@@ -159,93 +147,78 @@
             });
             if(q) questions.push({ q, opts });
         });
-        if(questions.length) startPlay();
-    }
-
-    function startPlay() {
-        curIdx = 0; score = 0;
-        showScreen('game-zone');
-        renderStep();
+        if(questions.length) { curIdx = 0; score = 0; showScreen('game-zone'); renderStep(); }
     }
 
     function renderStep() {
-        clearInterval(timerInt);
         document.getElementById('next-btn').style.display = 'none';
-        document.getElementById('wheel-ui').style.display = (gameMode === 'wheel') ? 'block' : 'none';
-        document.getElementById('cards-ui').style.display = (gameMode === 'cards') ? 'block' : 'none';
-        document.getElementById('q-area').style.display = (gameMode === 'wheel' || gameMode === 'cards') ? 'none' : 'block';
+        document.getElementById('mode-info').innerText = "Режим: " + gameMode.toUpperCase();
+        document.getElementById('wheel-ui').style.display = (gameMode === 'колесо') ? 'block' : 'none';
+        document.getElementById('q-content').style.display = (gameMode === 'колесо') ? 'none' : 'block';
+
+        if(gameMode === 'колесо') drawWheel();
         
         const item = questions[curIdx];
-
-        if(gameMode === 'wheel') {
-            drawWheel();
-            document.getElementById('spin-btn').disabled = false;
-        } else if(gameMode === 'cards') {
-            document.querySelector('.flash-inner').classList.remove('flipped');
-            document.getElementById('card-q').innerText = item.q;
-            document.getElementById('card-a').innerText = item.opts.find(o => o.isCorrect).text;
-            document.getElementById('next-btn').style.display = 'block';
-        } else {
-            document.getElementById('q-text').innerText = item.q;
-            const box = document.getElementById('options-box'); box.innerHTML = "";
-            item.opts.forEach(o => {
-                const b = document.createElement('button'); b.className = 'game-btn';
-                b.style.background = "white"; b.style.color = "black"; b.style.border = "2px solid #ddd"; b.style.boxShadow = "none";
-                b.innerText = o.text;
-                b.onclick = () => {
-                    if(o.isCorrect) { score++; b.style.background = "#2ecc71"; b.style.color = "white"; }
-                    else { b.style.background = "#e74c3c"; b.style.color = "white"; }
-                    document.querySelectorAll('#options-box button').forEach(btn => btn.disabled = true);
-                    document.getElementById('next-btn').style.display = 'block';
-                };
-                box.appendChild(b);
-            });
-        }
+        document.getElementById('q-text').innerText = (gameMode === 'лабиринт' ? "👾 Найди путь: " : "") + item.q;
+        const box = document.getElementById('options-box'); box.innerHTML = "";
+        
+        item.opts.forEach(o => {
+            const b = document.createElement('button'); b.className = 'game-btn';
+            b.style.background = "white"; b.style.color = "black"; b.style.border = "2px solid #e2e8f0"; b.style.boxShadow = "none";
+            b.innerText = o.text;
+            b.onclick = () => {
+                if(o.isCorrect) { score++; b.style.background = varName('--green'); b.style.color = "white"; }
+                else { b.style.background = varName('--red'); b.style.color = "white"; }
+                document.querySelectorAll('#options-box button').forEach(btn => btn.disabled = true);
+                document.getElementById('next-btn').style.display = 'block';
+            };
+            box.appendChild(b);
+        });
     }
 
     function drawWheel() {
-        canvas.width = 280; canvas.height = 280;
+        canvas.width = 260; canvas.height = 260;
         const slice = (Math.PI * 2) / questions.length;
         questions.forEach((q, i) => {
             ctx.beginPath();
             ctx.fillStyle = i % 2 ? '#00a2ff' : '#ffcc00';
-            ctx.moveTo(140, 140);
-            ctx.arc(140, 140, 130, slice * i, slice * (i+1));
+            ctx.moveTo(130, 130);
+            ctx.arc(130, 130, 125, slice * i, slice * (i+1));
             ctx.fill();
-            ctx.save();
-            ctx.translate(140, 140);
-            ctx.rotate(slice * i + slice/2);
-            ctx.fillStyle = "white"; ctx.font = "bold 20px Arial";
-            ctx.fillText(i+1, 80, 10);
-            ctx.restore();
+            ctx.save(); ctx.translate(130, 130); ctx.rotate(slice * i + slice/2);
+            ctx.fillStyle = "white"; ctx.font = "bold 16px Arial"; ctx.fillText(i+1, 80, 5); ctx.restore();
         });
     }
 
-    function spinIt() {
-        document.getElementById('spin-btn').disabled = true;
-        const randDeg = 1800 + Math.random() * 1000;
-        canvas.style.transform = `rotate(${randDeg}deg)`;
+    function spinWheel() {
+        const deg = 1800 + Math.random() * 1000;
+        canvas.style.transform = `rotate(${deg}deg)`;
         setTimeout(() => {
-            document.getElementById('q-area').style.display = 'block';
-            document.getElementById('q-text').innerText = "ВОПРОС: " + questions[curIdx].q;
-            const box = document.getElementById('options-box'); box.innerHTML = "";
-            questions[curIdx].opts.forEach(o => {
-                const b = document.createElement('button'); b.className = 'game-btn'; b.innerText = o.text;
-                b.onclick = () => { if(o.isCorrect) score++; nextStep(); };
-                box.appendChild(b);
-            });
-        }, 4100);
+            document.getElementById('q-content').style.display = 'block';
+            document.getElementById('spin-btn').style.display = 'none';
+        }, 4000);
     }
 
     function nextStep() {
         curIdx++;
-        if(curIdx < questions.length) renderStep();
+        if(curIdx < questions.length) { 
+            if(gameMode === 'колесо') document.getElementById('spin-btn').style.display = 'block';
+            renderStep(); 
+        }
         else {
             showScreen('result-screen');
-            document.getElementById('final-score').innerText = `Счет: ${score} / ${questions.length}`;
+            document.getElementById('final-score').innerText = `Результат: ${score} из ${questions.length}`;
             document.getElementById('final-stars').innerText = (score === questions.length) ? "⭐️⭐️⭐️" : "⭐️";
             if(score === questions.length) confetti();
         }
+    }
+
+    function varName(n) { return getComputedStyle(document.documentElement).getPropertyValue(n.replace('varName', '--')); }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0,0);
     }
 
     function exportGame() {
@@ -253,22 +226,16 @@
         const code = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
         const box = document.getElementById('copy-box');
         box.value = code; box.style.display = 'block'; box.select();
-        alert("Код скопирован!");
+        alert("Код готов и скопирован!");
     }
 
     function importGame() {
-        const c = prompt("Вставь код:");
+        const c = prompt("Вставь код игры:");
         if(c) {
             const data = JSON.parse(decodeURIComponent(escape(atob(c))));
             gameMode = data.m; questions = data.q;
-            startPlay();
+            curIdx = 0; score = 0; showScreen('game-zone'); renderStep();
         }
-    }
-
-    function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        window.scrollTo(0,0);
     }
 </script>
 </body>
