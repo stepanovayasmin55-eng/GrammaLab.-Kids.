@@ -2,260 +2,712 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GrammaLab Ultra Max 400</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Словарный Квест | 6 в 1</title>
     <style>
-        :root { --p: #3498db; --bg: #f0f3f7; --ai: #a29bfe; --s: #55efc4; --r: #ff7675; --dark: #2d3436; --grad: linear-gradient(135deg, #6c5ce7, #a29bfe); }
-        body { margin: 0; font-family: 'Montserrat', 'Segoe UI', sans-serif; background: var(--bg); overflow: hidden; touch-action: none; user-select: none; }
+        :root {
+            --bg-dark: #0b1329;
+            --panel-dark: #1c2541;
+            --primary: #00a2ff;
+            --secondary: #6c5ce7;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --warning: #f59e0b;
+        }
+        body {
+            margin: 0; font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-dark); color: var(--text-light);
+            padding-bottom: 70px; -webkit-tap-highlight-color: transparent;
+        }
+        header {
+            background: var(--panel-dark); padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #2a3454; position: sticky; top: 0; z-index: 100;
+        }
+        .user-pill {
+            background: rgba(255,255,255,0.05); padding: 6px 12px;
+            border-radius: 12px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+        }
+        .avatar {
+            width: 32px; height: 32px; background: linear-gradient(135deg, #ff007f, #7928ca);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 14px;
+        }
+        .container { max-width: 550px; margin: 0 auto; padding: 15px; }
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* UI Элементы */
-        header { background: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-bottom: 4px solid var(--p); z-index: 100; position: relative; }
-        .score-panel { display: flex; flex-direction: column; align-items: flex-end; }
-        #sc-val { font-size: 1.2rem; font-weight: 900; color: var(--dark); }
-        .btn-home { background: var(--grad); color: #fff; border: none; padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 0 #4834d4; }
+        .card {
+            background: var(--panel-dark); border-radius: 16px; padding: 16px;
+            margin-bottom: 15px; border: 1px solid #2a3454;
+        }
+        .btn {
+            background: var(--primary); color: white; border: none; padding: 12px 20px;
+            border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%;
+            margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;
+            text-transform: uppercase; font-size: 14px; transition: 0.2s;
+        }
+        .btn-sec { background: var(--secondary); }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-outline { background: transparent; border: 1px solid #4a5578; color: var(--text-light); }
+        .btn:active { transform: scale(0.98); }
         
-        .screen { display: none; padding: 20px; height: calc(100vh - 70px); box-sizing: border-box; overflow-y: auto; scroll-behavior: smooth; }
-        .active { display: block; animation: zoomIn 0.3s ease; }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .btn { padding: 18px; border-radius: 16px; border: none; font-weight: 800; cursor: pointer; width: 100%; margin: 8px 0; box-shadow: 0 6px 0 rgba(0,0,0,0.1); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-size: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.1); }
-        .btn-p { background: var(--p); color: #fff; }
-        .btn-ai { background: var(--grad); color: #fff; }
-        .btn-white { background: #fff; border: 2px solid #dfe6e9; color: #636e72; }
-
+        input, select, textarea {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.2);
+            border: 1px solid #3a4464; border-radius: 10px; color: white;
+            box-sizing: border-box; margin-top: 6px; margin-bottom: 12px; font-size: 14px;
+        }
+        
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+            background: var(--panel-dark); border-top: 1px solid #2a3454;
+            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+        }
+        .nav-item { color: var(--text-muted); cursor: pointer; font-size: 12px; text-align: center; font-weight: 600; }
+        .nav-item.active-nav { color: var(--primary); }
+        
         /* Игровое поле */
-        #stage { height: 380px; position: relative; overflow: hidden; background: #fff; border-radius: 30px; border: 5px solid var(--dark); margin-bottom: 15px; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); }
-        #player { width: 30px; height: 30px; background: var(--p); position: absolute; border-radius: 10px; z-index: 10; border: 3px solid #fff; box-shadow: 0 0 20px rgba(52,152,219,0.5); transition: transform 0.1s; }
+        #stage {
+            height: 250px; background: #fff; border-radius: 20px; margin-bottom: 15px;
+            position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+        .mole {
+            width: 120px; height: 95px; background: #633112; border-radius: 20px 20px 5px 5px;
+            position: absolute; bottom: -110px; transition: 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold; text-align: center; padding: 6px; box-sizing: border-box; cursor: pointer;
+        }
+        .mole.up { bottom: 25px; }
+        .plane {
+            position: absolute; background: var(--primary); padding: 10px 16px; border-radius: 12px;
+            left: 110%; animation: fly 5s linear infinite; font-weight: bold; color: white; white-space: nowrap; box-shadow: 0 4px 0 #0077b6; cursor: pointer; min-width: 90px; text-align: center;
+        }
+        @keyframes fly { from { left: 110%; } to { left: -350px; } }
         
-        /* Объекты */
-        .wall { position: absolute; background: #dfe6e9; border-radius: 4px; z-index: 1; }
-        .target { position: absolute; padding: 12px 18px; background: #fff; border-radius: 15px; font-size: 12px; font-weight: 800; border: 3px solid #eee; box-shadow: 0 5px 0 #ddd; z-index: 5; transition: 0.3s; pointer-events: auto; }
-        .mole { width: 90px; height: 90px; background: #a29bfe; color: #fff; position: absolute; bottom: -110px; border-radius: 45px 45px 15px 15px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; transition: 0.4s cubic-bezier(0.5, -0.5, 0.5, 1.5); padding: 10px; box-sizing: border-box; font-weight: bold; border: 4px solid #6c5ce7; }
-        .mole.up { bottom: 40px; }
-        .letter { width: 55px; height: 55px; background: var(--grad); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; border-radius: 15px; cursor: pointer; box-shadow: 0 5px 0 #4834d4; margin: 5px; }
-        .letter.off { opacity: 0.1; transform: scale(0.8) rotate(-10deg); pointer-events: none; }
+        .game-item-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .badge-tag { background: rgba(0,162,255,0.1); color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .badge-count { background: var(--success); color: white; padding: 2px 6px; border-radius: 6px; font-size: 11px; }
+        .reactions { display: flex; gap: 15px; color: var(--text-muted); font-size: 13px; margin-top: 12px; border-top: 1px solid #2a3454; padding-top: 10px; }
+        .reaction-btn { cursor: pointer; display: flex; align-items: center; gap: 4px; }
         
-        /* Джойстик */
-        #joy-base { width: 110px; height: 110px; background: rgba(0,0,0,0.03); border-radius: 50%; position: relative; margin: 0 auto; display: none; border: 3px dashed #ccc; touch-action: none; }
-        #joy-stick { width: 50px; height: 50px; background: var(--p); border-radius: 50%; position: absolute; left: 30px; top: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-
-        /* Редактор */
-        .card-editor { background: #fff; padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 10px solid var(--ai); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .inp { width: 100%; margin: 8px 0; padding: 12px; border-radius: 12px; border: 2px solid #edf2f7; box-sizing: border-box; font-size: 16px; outline: none; transition: 0.3s; }
-        .inp:focus { border-color: var(--p); }
-        
-        #finish-screen { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .opt-build-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .check-correct { width: 24px; height: 24px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <button class="btn-home" onclick="location.reload()">🏠 МЕНЮ</button>
-    <div class="score-panel">
-        <span style="font-size: 10px; color: #999;">ТВОЙ СЧЁТ</span>
-        <div id="sc-val">0 ⭐</div>
+    <div style="font-weight: 900; font-size: 18px;" id="main-logo-title">Словарный Квест</div>
+    <div class="user-pill" onclick="switchTab('profile')">
+        <div class="avatar" id="header-avatar">?</div>
+        <div style="font-size: 13px; font-weight: 600;" id="header-user-name">Гость</div>
     </div>
 </header>
 
-<div id="sc-menu" class="screen active">
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="color: var(--dark)">Выбери игру:</h2>
+<div class="container">
+    
+    <!-- ЭКРАН РЕГИСТРАЦИИ -->
+    <div id="scr-auth" class="screen active">
+        <div class="card">
+            <h3 style="margin-top:0; text-align: center; color: var(--primary);">Регистрация участника</h3>
+            <label>Ваше Имя</label><input type="text" id="reg-name" placeholder="Введите имя...">
+            <label>Ваша Фамилия</label><input type="text" id="reg-surname" placeholder="Введите фамилию...">
+            <label>Класс</label><input type="text" id="reg-class" placeholder="Например: 5 В" value="5 В">
+            <button class="btn" onclick="registerUser()">Войти в систему</button>
+        </div>
     </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <button class="btn btn-white" onclick="init('maze')">👾 Лабиринт</button>
-        <button class="btn btn-white" onclick="init('mole')">🔨 Кроты</button>
-        <button class="btn btn-white" onclick="init('plane')">✈️ Самолет</button>
-        <button class="btn btn-white" onclick="init('fall')">📦 Падение</button>
-        <button class="btn btn-white" onclick="init('anagram')">🔠 Буквы</button>
-        <button class="btn btn-white" onclick="init('pairs')">👥 Пары</button>
-        <button class="btn btn-white" onclick="init('quiz')" style="grid-column: span 2;">📝 Тест-Викторина</button>
+
+    <!-- ЭКРАН ЛЕНТЫ ИГР -->
+    <div id="scr-feed" class="screen">
+        <input type="text" id="search-task" placeholder="🔍 Найти задание по названию или автору...">
+        <div id="feed-list"></div>
     </div>
-    <button class="btn btn-p" onclick="importData()" style="margin-top:25px;">📥 ЗАГРУЗИТЬ ПО КОДУ</button>
+
+    <!-- ЭКРАН СОЗДАНИЯ ИГРЫ -->
+    <div id="scr-create" class="screen">
+        <div class="card">
+            <h3 style="margin-top:0">Создание нового квеста</h3>
+            <label>Название квеста</label>
+            <input type="text" id="setup-title" placeholder="Введите название квеста">
+            
+            <label>Выберите игровой режим</label>
+            <select id="setup-mode">
+                <option value="mole">🔨 Охота на Кротов</option>
+                <option value="plane">✈️ Авиа-Грамматика</option>
+                <option value="words">🔠 Мастер Слов (Ввод)</option>
+                <option value="tf">⚖️ Детектор Лжи (Правда/Ложь)</option>
+                <option value="sort">↔️ Сортировщик (Группы)</option>
+                <option value="quiz">🎓 Супер Экзамен (Тест)</option>
+            </select>
+
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button class="btn btn-sec" style="margin:0" onclick="generateAIQuestions()">🤖 Умный ИИ-Генератор</button>
+                <button class="btn btn-outline" style="margin:0" onclick="openManualEditor()">✍️ Вручную</button>
+            </div>
+            
+            <div id="builder-zone" style="display:none; border-top:1px solid #3a4464; padding-top:15px;">
+                <h4>Вопрос № <span id="q-build-num">1</span></h4>
+                <input type="text" id="build-q-text" placeholder="Формулировка вопроса">
+                <div id="build-options-container"></div>
+                <button class="btn btn-outline" style="font-size:12px; padding:6px;" onclick="addOptionField('', false)">+ Добавить ответ</button>
+                <button class="btn btn-success" style="margin-top:15px;" onclick="saveBuiltQuestion()">Сохранить вопрос</button>
+            </div>
+
+            <div id="ready-q-count" style="margin-top:10px; font-size:13px; color:var(--text-muted)">Добавлено вопросов: 0</div>
+            <button class="btn" id="btn-publish-game" onclick="publishGame()" style="display:none; background:var(--success)">🚀 Опубликовать задание</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН ПРОФИЛЯ -->
+    <div id="scr-profile" class="screen">
+        <div class="card" style="display:flex; gap:15px; align-items:center;">
+            <div class="avatar" style="width:65px; height:65px; font-size:24px;" id="prof-avatar">?</div>
+            <div>
+                <span style="color:var(--primary); font-size:12px; font-weight:bold;">Твой профиль</span>
+                <h2 style="margin:2px 0;" id="prof-name">Пользователь</h2>
+                <span style="color:var(--text-muted)" id="prof-class">Класс</span>
+            </div>
+        </div>
+        <h4>Мои созданные игры:</h4>
+        <div id="my-games-list"></div>
+        <button class="btn btn-danger" onclick="logout()">Выйти из аккаунта</button>
+    </div>
+
+    <!-- ЭКРАН ИГРЫ -->
+    <div id="scr-game" class="screen">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+            <button class="btn btn-outline" style="width:auto; margin:0; padding:6px 12px;" onclick="switchTab('feed')">← Назад</button>
+            <div id="game-hud" style="font-weight:bold; color:var(--warning); font-size:18px;">0 б.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+            <h3 id="game-q-text" style="margin:0; min-height:50px; color:var(--primary)">Загрузка...</h3>
+        </div>
+        <div id="stage"></div>
+        <div id="game-answers" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+    </div>
+
+    <!-- ЭКРАН ИТОГОВЫХ БАЛЛОВ -->
+    <div id="scr-results" class="screen">
+        <div class="card" style="text-align:center; padding:30px 20px;">
+            <div style="font-size:60px; margin-bottom:10px;">🏆</div>
+            <h2 style="margin:0; color:var(--success)">КВЕСТ ЗАВЕРШЕН!</h2>
+            <p style="color:var(--text-muted)" id="res-game-title">Название игры</p>
+            <hr style="border-color:#2a3454; margin:20px 0;">
+            <div style="font-size:18px; margin-bottom:8px;">Ученик: <b id="res-user-name">Имя</b></div>
+            <div style="font-size:32px; font-weight:900; color:var(--warning);" id="res-total-score">0 баллов</div>
+            <p id="res-feedback-text" style="font-size:14px; opacity:0.8;"></p>
+            <button class="btn btn-success" style="margin-top:20px;" onclick="switchTab('feed')">Вернуться в главное меню</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН КОММЕНТАРИЕВ -->
+    <div id="scr-comments" class="screen">
+        <button class="btn btn-outline" style="width:auto; margin-bottom:15px;" onclick="switchTab('feed')">← К ленте</button>
+        <div class="card" id="comment-game-info"></div>
+        <h4>Комментарии:</h4>
+        <div id="comments-box" style="margin-bottom:15px;"></div>
+        <div class="card">
+            <textarea id="new-comment-text" placeholder="Оставьте отзыв об этом задании..."></textarea>
+            <button class="btn" onclick="submitComment()">Отправить комментарий</button>
+        </div>
+    </div>
+
 </div>
 
-<div id="sc-edit" class="screen">
-    <div style="display: flex; gap: 10px; margin-bottom: 15px; position: sticky; top: 0; background: var(--bg); z-index: 100; padding: 10px 0;">
-        <button class="btn btn-ai" style="flex: 2" onclick="loadAiBase()">🤖 ИИ: 13 ТЕМ (5-6 КЛАСС)</button>
-        <button class="btn btn-white" style="flex: 1" onclick="addQuestion({q:'', a:['','',''], c:0})">➕</button>
-    </div>
-    <div id="editor-list"></div>
-    <button class="btn btn-p" onclick="startGame()">ЗАПУСТИТЬ ИГРУ ▶️</button>
-    <button class="btn btn-white" onclick="exportData()">📤 ПОЛУЧИТЬ КОД ПЕРЕДАЧИ</button>
-</div>
-
-<div id="sc-game" class="screen" style="overflow: hidden;">
-    <div id="game-header" style="text-align:center; padding: 10px;">
-        <div id="quest-text" style="font-size: 1.2rem; font-weight: 800; color: var(--dark);"></div>
-    </div>
-    <div id="stage"></div>
-    <div id="joy-base"><div id="joy-stick"></div></div>
-    <div id="game-ui"></div>
-</div>
-
-<div id="finish-screen">
-    <h1 style="font-size: 3rem; margin: 0; color: var(--p);">ГЕНИЙ!</h1>
-    <p id="final-score" style="font-size: 1.5rem; font-weight: bold;"></p>
-    <button class="btn btn-p" style="width: 200px" onclick="location.reload()">ВЕРНУТЬСЯ</button>
+<div class="nav-bar" id="bottom-nav" style="display:none;">
+    <div class="nav-item active-nav" id="nav-feed" onclick="switchTab('feed')">🏠<br>Главная</div>
+    <div class="nav-item" id="nav-create" onclick="switchTab('create')">➕<br>Создать игру</div>
+    <div class="nav-item" id="nav-profile" onclick="switchTab('profile')">👤<br>Профиль</div>
 </div>
 
 <script>
-    let mode = '', questions = [], current = 0, score = 0, isBusy = false;
-    let px = 50, py = 50, targets = [];
+    // ПРИНУДИТЕЛЬНЫЙ СБРОС СТАРЫХ ДАННЫХ ДЛЯ ЗАПУСКА С ЧИСТОГО ЛИСТА
+    if (!localStorage.getItem('gq_clean_start_v2')) {
+        localStorage.removeItem('gq_games');
+        localStorage.setItem('gq_clean_start_v2', 'true');
+    }
 
-    const AI_MASTER = {
-        1: {t: "Существительное", q: "Найди сущ. 3-го склонения:", a: ["Лошадь", "Конь", "Поле"], c: 0},
-        2: {t: "Обращение", q: "Где верно расставлены запятые?", a: ["Друг мой, привет!", "Привет друг мой!", "Привет, друг мой!"], c: 2},
-        3: {t: "Типы речи", q: "Текст, описывающий признаки:", a: ["Описание", "Повествование", "Рассуждение"], c: 0},
-        4: {t: "Лексика", q: "Антоним к слову 'Смелый':", a: ["Трусливый", "Храбрый", "Сильный"], c: 0},
-        5: {t: "Союзы", q: "Запятая ставится перед союзом:", a: ["И", "Но", "Да (в значении И)"], c: 1},
-        6: {t: "Обобщающие", q: "Фрукты: яблоко, банан. Слово 'фрукты' - это:", a: ["Подлежащее", "Обобщающее слово", "Дополнение"], c: 1},
-        7: {t: "Прямая речь", q: "Слова автора после прямой речи:", a: ["«П», - а.", "А: «П».", "«П?» - а."], c: 0},
-        8: {t: "Подлежащее", q: "Отвечает на вопросы:", a: ["Кого? Чего?", "Кто? Что?", "Как? Где?"], c: 1},
-        9: {t: "Сказуемое", q: "Обычно выражается:", a: ["Существительным", "Глаголом", "Наречием"], c: 1},
-        10: {t: "Обстоятельство", q: "Указывает на:", a: ["Признак", "Место, время, способ", "Предмет"], c: 1},
-        11: {t: "Тире", q: "Где нужно тире?", a: ["Книга лучший друг.", "Я читаю книгу.", "Он мой брат."], c: 0},
-        12: {t: "Местоимение", q: "Личное местоимение 3 лица:", a: ["Я", "Ты", "Оно"], c: 2},
-        13: {t: "Глагол", q: "В инфинитиве глаголы отвечают на:", a: ["Что делает?", "Что делать?", "Что сделал?"], c: 1}
+    let currentUser = JSON.parse(localStorage.getItem('gq_user')) || null;
+    let games = JSON.parse(localStorage.getItem('gq_games')) || [];
+
+    let buildQuestions = [];
+    let activeGame = null;
+    let activeGameIndex = 0;
+    let activeScore = 0;
+    let activeIsLocked = false;
+    let activeCommentGameId = null;
+
+    const MODES_NAMES = { mole: "🔨 Кроты", plane: "✈️ Самолет", words: "🔠 Мастер Слов", tf: "⚖️ Правда/Ложь", sort: "↔️ Сортировщик", quiz: "🎓 Экзамен" };
+
+    // Умная лингвистическая ИИ-матрица
+    const AI_LEXICON = {
+        prefixes: [
+            {w: "пр..красный", c: "Прекрасный", w1: "Прикрасный", r: "пре- в значении 'очень'"},
+            {w: "пр..бывать в город", c: "Прибывать", w1: "Пребывать", r: "при- в значении приближения"},
+            {w: "ра..писание", c: "Расписание", w1: "Разписание", r: "рас- перед глухой согласной"},
+            {w: "бе..болезненный", c: "Безболезненный", w1: "Бесболезненный", r: "без- перед звонкой согласной"},
+            {w: "пр..открыть", c: "Приоткрыть", w1: "Преоткрыть", r: "при- в значении неполноты действия"},
+            {w: "и..печь", c: "Испечь", w1: "Изпечь", r: "ис- перед глухой согласной"},
+            {w: "пр..одолеть", c: "Преодолеть", w1: "Приодолеть", r: "пре- близко к приставке пере-"},
+            {w: "во..наградить", c: "Вознаградить", w1: "Воснаградить", r: "воз- перед звонкой согласной"},
+            {w: "пр..морский", c: "Приморский", w1: "Преморский", r: "при- в значении близости"},
+            {w: "чре..мерный", c: "Чрезмерный", w1: "Чресмерный", r: "чрез- перед звонкой согласной"}
+        ],
+        roots: [
+            {w: "предл..гать", c: "Предлагать", w1: "Предложить", r: "чередование лаг/лож (перед Г пишется А)"},
+            {w: "выр..щенный", c: "Выращенный", w1: "Вырощенный", r: "чередование раст/ращ/рос"},
+            {w: "к..саться", c: "Касаться", w1: "Коснуться", r: "кас/кос (есть суффикс А)"},
+            {w: "заг..рать", c: "Загорать", w1: "Загарать", r: "гор/гар (без ударения пишется О)"},
+            {w: "бл..стеть", c: "Блестеть", w1: "Блистать", r: "блест/блист (нет суффикса А)"},
+            {w: "м..кать сухарь", c: "Макать", w1: "Мокать", r: "мак/мок (в значении погружения в жидкость)"},
+            {w: "р..внина", c: "Равнина", w1: "Ровнина", r: "исключение в чередовании равн/ровн"},
+            {w: "пл..вец", c: "Пловец", w1: "Плавец", r: "исключение в корне плав/плов"},
+            {w: "ум..рать", c: "Умирать", w1: "Умереть", r: "мир/мер (есть суффикс А)"},
+            {w: "зор..нька", c: "Зоренька", w1: "Заренька", r: "зор/зар (под ударением О)"}
+        ],
+        parts: [
+            {w: "кожа..ый", c: "Кожаный", w1: "Кожанный", r: "одна Н в суффиксе -ан-"},
+            {w: "деревя..ый", c: "Деревянный", w1: "Деревяный", r: "исключение с суффиксом -янн-"},
+            {w: "мыш..", c: "Мышь", w1: "Мыш", r: "3-е склонение, женский род с Ь"},
+            {w: "луч..", c: "Луч", w1: "Лучш", r: "мужской род, 2-е склонение без Ь"},
+            {w: "не..был", c: "Не был", w1: "Небыл", r: "НЕ с глаголами пишется раздельно"},
+            {w: "с..грать", c: "Сыграть", w1: "Сиграть", r: "Ы после русской приставки на согласную"},
+            {w: "цыпл..нок", c: "Цыплёнок", w1: "Циплёнок", r: "исключение, о-ы после Ц"},
+            {w: "станц..я", c: "Станция", w1: "Станцыя", r: "слова на -ция пишутся с И"},
+            {w: "стереч..", c: "Стеречь", w1: "Стеречь", r: "Ь на конце глаголов в начальной форме"},
+            {w: "из-за", c: "Из-за", w1: "Из за", r: "сложные предлоги пишутся через дефис"}
+        ],
+        general: [
+            {q: "Как правильно пишется слово?", a: "Палисадник", n: "Полисадник"},
+            {q: "Укажите верное написание слова:", a: "Винегрет", n: "Венигрет"},
+            {q: "Какое слово написано без ошибок?", a: "Здесь", n: "Сдесь"},
+            {q: "Выберите верный вариант:", a: "Парашют", n: "Парашут"},
+            {q: "Как пишется слово (ПО)ОДИНОЧКЕ?", a: "Слитно", n: "Раздельно"},
+            {q: "Какое слово является исключением?", a: "Оловянный", n: "Глиняный"},
+            {q: "Где допущена ошибка?", a: "Семьдесят", n: "Семьдесят"},
+            {q: "Выберите правильный вариант:", a: "Жюри", n: "Жури"},
+            {q: "В каком варианте написание верно?", a: "Аккомпанемент", n: "Акомпонимент"},
+            {q: "Укажите правильное слово:", a: "Интеллект", n: "Интелект"}
+        ]
     };
 
-    function init(m) { mode = m; document.getElementById('sc-menu').classList.remove('active'); document.getElementById('sc-edit').classList.add('active'); }
-    
-    function addQuestion(d) {
-        const div = document.createElement('div'); div.className = 'card-editor';
-        const group = 'g' + Math.random().toString(36).substr(2, 9);
-        div.innerHTML = `<input class="inp q-in" value="${d.q}" placeholder="Введите вопрос или слово">
-            <div class="opts">
-                ${d.a.map((v, i) => `<div style="display:flex; gap:10px; align-items:center;">
-                    <input type="radio" name="${group}" class="c-in" ${i===d.c?'checked':''}>
-                    <input class="inp a-in" value="${v}" placeholder="Вариант ${i+1}">
-                </div>`).join('')}
-            </div>
-            <button onclick="this.parentElement.remove()" style="color:var(--r); border:none; background:none; font-weight:bold; cursor:pointer; margin-top:10px;">🗑 УДАЛИТЬ</button>`;
-        document.getElementById('editor-list').appendChild(div);
+    window.onload = function() {
+        document.getElementById('search-task').addEventListener('input', renderFeed);
+        if (currentUser) loginSetup();
+        else switchTab('auth');
+    };
+
+    function registerUser() {
+        const name = document.getElementById('reg-name').value.trim();
+        const surname = document.getElementById('reg-surname').value.trim();
+        const cls = document.getElementById('reg-class').value.trim();
+        if(!name || !surname || !cls) return alert("Пожалуйста, заполните все поля регистрации!");
+        
+        currentUser = { name, surname, class: cls };
+        localStorage.setItem('gq_user', JSON.stringify(currentUser));
+        loginSetup();
     }
 
-    function loadAiBase() { Object.keys(AI_MASTER).forEach(k => addQuestion(AI_MASTER[k])); }
-
-    function startGame() {
-        questions = [];
-        document.querySelectorAll('.card-editor').forEach(card => {
-            let a = []; card.querySelectorAll('.a-in').forEach((inp, i) => a.push({ t: inp.value, ok: card.querySelectorAll('.c-in')[i].checked }));
-            questions.push({ q: card.querySelector('.q-in').value, a });
-        });
-        if(questions.length > 0) { current = 0; score = 0; showScreen('sc-game'); renderLevel(); }
+    function loginSetup() {
+        document.getElementById('bottom-nav').style.display = 'flex';
+        document.getElementById('header-user-name').innerText = `${currentUser.name} ${currentUser.surname}`;
+        const initials = (currentUser.name[0] || '') + (currentUser.surname[0] || '');
+        document.getElementById('header-avatar').innerText = initials.toUpperCase();
+        
+        document.getElementById('prof-name').innerText = `${currentUser.name} ${currentUser.surname}`;
+        document.getElementById('prof-class').innerText = `Класс: ${currentUser.class}`;
+        document.getElementById('prof-avatar').innerText = initials.toUpperCase();
+        
+        switchTab('feed');
+        renderFeed();
     }
 
-    function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function logout() {
+        localStorage.removeItem('gq_user');
+        currentUser = null;
+        document.getElementById('bottom-nav').style.display = 'none';
+        switchTab('auth');
+    }
 
-    function renderLevel() {
-        isBusy = false; const q = questions[current]; const st = document.getElementById('stage'); const ui = document.getElementById('game-ui');
-        st.innerHTML = ''; ui.innerHTML = ''; document.getElementById('joy-base').style.display = 'none';
-        document.getElementById('quest-text').innerText = q.q;
+    function switchTab(target) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
+        
+        const screenMap = { 'auth':'scr-auth', 'feed':'scr-feed', 'create':'scr-create', 'profile':'scr-profile', 'game':'scr-game', 'comments':'scr-comments', 'results':'scr-results' };
+        document.getElementById(screenMap[target]).classList.add('active');
+        
+        if(document.getElementById(`nav-${target}`)) document.getElementById(`nav-${target}`).classList.add('active-nav');
+        if(target === 'profile') renderMyGames();
+    }
 
-        if(mode === 'maze') {
-            document.getElementById('joy-base').style.display = 'block';
-            st.innerHTML = '<div id="player"></div>'; px = 30; py = 30; movePlayer();
-            // Стены
-            for(let i=0; i<4; i++) {
-                let w = document.createElement('div'); w.className = 'wall';
-                w.style.width = "70%"; w.style.height = "15px"; w.style.left = (i%2===0?0:'30%'); w.style.top = (80 + i*70)+"px";
-                st.appendChild(w);
+    function openManualEditor() {
+        buildQuestions = [];
+        document.getElementById('builder-zone').style.display = 'block';
+        setupQuestionBuilderField();
+    }
+
+    function setupQuestionBuilderField() {
+        document.getElementById('q-build-num').innerText = buildQuestions.length + 1;
+        document.getElementById('build-q-text').value = '';
+        document.getElementById('build-options-container').innerHTML = '';
+        addOptionField('', true);
+        addOptionField('', false);
+    }
+
+    function addOptionField(text, isCorrect) {
+        const container = document.getElementById('build-options-container');
+        const row = document.createElement('div');
+        row.className = 'opt-build-row';
+        row.innerHTML = `
+            <input type="checkbox" class="check-correct" ${isCorrect ? 'checked' : ''} onclick="onlyOneCheck(this)">
+            <input type="text" class="opt-text" placeholder="Вариант ответа" value="${text}">
+        `;
+        container.appendChild(row);
+    }
+
+    function onlyOneCheck(chk) {
+        if(chk.checked) {
+            document.querySelectorAll('.check-correct').forEach(c => { if(c !== chk) c.checked = false; });
+        }
+    }
+
+    function saveBuiltQuestion() {
+        const qText = document.getElementById('build-q-text').value.trim();
+        if(!qText) return alert("Введите текст вопроса!");
+        
+        const opts = [];
+        let hasCorrect = false;
+        document.querySelectorAll('.opt-build-row').forEach(row => {
+            const t = row.querySelector('.opt-text').value.trim();
+            const ok = row.querySelector('.check-correct').checked;
+            if(t) {
+                opts.push({ text: t, isCorrect: ok });
+                if(ok) hasCorrect = true;
             }
-            q.a.forEach((opt, i) => {
-                let t = document.createElement('div'); t.className = 'target'; t.innerText = opt.t;
-                t.style.bottom = "20px"; t.style.left = (10 + i*30) + "%";
-                t.onclick = () => { if(distCheck(t)) validate(opt.ok, t); };
-                st.appendChild(t);
-            });
-            initJoystick();
-        } else if(mode === 'mole') {
-            q.a.forEach((opt, i) => {
-                let m = document.createElement('div'); m.className = 'mole'; m.innerText = opt.t;
-                m.style.left = (5 + i*32) + "%"; st.appendChild(m);
-                m.onclick = () => validate(opt.ok, m);
-                setInterval(() => m.classList.toggle('up'), 1500 + i*300);
-            });
-        } else if(mode === 'anagram') {
-            let word = q.q.toUpperCase(); let temp = "";
-            word.split('').sort(()=>Math.random()-0.5).forEach(l => {
-                let box = document.createElement('div'); box.className = 'letter'; box.innerText = l;
-                box.onclick = () => { if(box.classList.contains('off')) return; temp += l; box.classList.add('off'); 
-                document.getElementById('quest-text').innerText = temp;
-                if(temp.length === word.length) validate(temp === word, box); };
-                st.appendChild(box);
-            });
+        });
+
+        if(opts.length < 2) return alert("Добавьте минимум 2 ответа!");
+        if(!hasCorrect) return alert("Выберите правильный ответ!");
+
+        buildQuestions.push({ q: qText, opts: opts.sort(() => Math.random() - 0.5) });
+        document.getElementById('ready-q-count').innerText = `Добавлено вопросов: ${buildQuestions.length}`;
+        document.getElementById('btn-publish-game').style.display = 'block';
+        setupQuestionBuilderField();
+    }
+
+    function generateAIQuestions() {
+        document.getElementById('builder-zone').style.display = 'none';
+        
+        const promptTheme = prompt("Введите тему квеста (например: приставки, корни, части речи, словарные слова, орфография):", "приставки");
+        if (!promptTheme) return;
+        
+        const cleanTheme = promptTheme.toLowerCase().trim();
+        buildQuestions = [];
+
+        let sourceData = [];
+        
+        if (cleanTheme.includes("пристав") || cleanTheme.includes("пре") || cleanTheme.includes("при")) {
+            sourceData = [...AI_LEXICON.prefixes];
+        } else if (cleanTheme.includes("корн") || cleanTheme.includes("черед") || cleanTheme.includes("лаг") || cleanTheme.includes("лож")) {
+            sourceData = [...AI_LEXICON.roots];
+        } else if (cleanTheme.includes("част") || cleanTheme.includes("сущ") || cleanTheme.includes("глагол") || cleanTheme.includes("реч")) {
+            sourceData = [...AI_LEXICON.parts];
         } else {
-            q.a.forEach(opt => {
-                let b = document.createElement('button'); b.className = 'btn btn-p'; b.innerText = opt.t;
-                b.onclick = () => validate(opt.ok, b); ui.appendChild(b);
+            sourceData = [...AI_LEXICON.general];
+        }
+
+        sourceData.sort(() => Math.random() - 0.5);
+
+        for (let i = 0; i < 10; i++) {
+            let dataItem = sourceData[i % sourceData.length];
+            let questionText = "";
+            let rightOption = "";
+            let wrongOption = "";
+
+            if (dataItem.q) {
+                questionText = `[№${i+1}] ${dataItem.q}`;
+                rightOption = dataItem.a;
+                wrongOption = dataItem.n;
+            } else {
+                const variantsOfQuestions = [
+                    `Как правильно пишется слово или конструкция: "${dataItem.w}"?`,
+                    `Найдите верный орфографический вариант для: "${dataItem.w}":`,
+                    `В каком случае не допущена ошибка в правиле (${dataItem.r})?`,
+                    `Выберите правильный вариант написания по тему "${cleanTheme}":`
+                ];
+                questionText = `[№${i+1}] ` + variantsOfQuestions[i % variantsOfQuestions.length];
+                rightOption = dataItem.c;
+                wrongOption = dataItem.w1;
+            }
+
+            buildQuestions.push({
+                q: questionText,
+                opts: [
+                    { text: rightOption, isCorrect: true },
+                    { text: wrongOption, isCorrect: false }
+                ].sort(() => Math.random() - 0.5)
             });
+        }
+        
+        document.getElementById('ready-q-count').innerText = `ИИ сгенерировал 10 уникальных вопросов по теме "${promptTheme}"!`;
+        document.getElementById('btn-publish-game').style.display = 'block';
+        
+        if(!document.getElementById('setup-title').value.trim()) {
+            document.getElementById('setup-title').value = "Квест по теме: " + promptTheme;
         }
     }
 
-    function validate(isOk, el) {
-        if(isBusy) return; isBusy = true;
-        if(isOk) { score += 10; el.style.background = 'var(--s)'; } else { el.style.background = 'var(--r)'; document.body.style.animation = 'shake 0.3s'; }
-        document.getElementById('sc-val').innerText = score + " ⭐";
-        setTimeout(() => {
-            document.body.style.animation = '';
-            current++;
-            if(current < questions.length) renderLevel();
-            else finish();
-        }, 1000);
-    }
-
-    function finish() {
-        document.getElementById('finish-screen').style.display = 'flex';
-        document.getElementById('final-score').innerText = "ТЫ СОБРАЛ " + score + " ЗВЁЗД!";
-    }
-
-    function movePlayer() { const p = document.getElementById('player'); if(p) { p.style.left = px+'px'; p.style.top = py+'px'; } }
-
-    function initJoystick() {
-        const base = document.getElementById('joy-base'), stick = document.getElementById('joy-stick');
-        const move = (e) => {
-            let t = e.touches[0], rect = base.getBoundingClientRect();
-            let x = t.clientX - rect.left - 55, y = t.clientY - rect.top - 55;
-            let ang = Math.atan2(y, x), dist = Math.min(Math.sqrt(x*x+y*y), 45);
-            stick.style.transform = `translate(${Math.cos(ang)*dist}px, ${Math.sin(ang)*dist}px)`;
-            px = Math.max(5, Math.min(270, px + Math.cos(ang)*7));
-            py = Math.max(5, Math.min(340, py + Math.sin(ang)*7));
-            movePlayer();
-            document.querySelectorAll('.target').forEach(tar => {
-                let r1 = document.getElementById('player').getBoundingClientRect(), r2 = tar.getBoundingClientRect();
-                if(!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
-                    tar.click();
-                }
-            });
-            e.preventDefault();
+    function publishGame() {
+        const title = document.getElementById('setup-title').value.trim() || "Умный квест";
+        const mode = document.getElementById('setup-mode').value;
+        
+        if (buildQuestions.length === 0) return alert("Сначала создайте или сгенерируйте вопросы!");
+        
+        const newGame = {
+            id: "game_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+            title: title,
+            mode: mode,
+            creator: `${currentUser.name} ${currentUser.surname}`,
+            class: currentUser.class,
+            questions: buildQuestions,
+            likes: 0, dislikes: 0, likedBy: [], dislikedBy: [], comments: []
         };
-        base.ontouchmove = move;
-        base.ontouchend = () => stick.style.transform = 'translate(0,0)';
+        
+        games.push(newGame);
+        localStorage.setItem('gq_games', JSON.stringify(games));
+        
+        buildQuestions = [];
+        document.getElementById('setup-title').value = '';
+        document.getElementById('ready-q-count').innerText = "Добавлено вопросов: 0";
+        document.getElementById('btn-publish-game').style.display = 'none';
+        
+        alert("Задание успешно опубликовано в общую ленту!");
+        switchTab('feed');
+        renderFeed();
     }
 
-    // НОВАЯ СИСТЕМА КОДИРОВАНИЯ UTF-8 (Самая длинная и надежная часть)
-    function exportData() {
-        const str = JSON.stringify({m: mode, q: questions});
-        const code = btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (m, p) => String.fromCharCode('0x' + p)));
-        prompt("ТВОЙ СЕКРЕТНЫЙ КОД ИГРЫ:", code);
-    }
-
-    function importData() {
-        const code = prompt("ВСТАВЬ КОД:");
-        if(code) {
-            try {
-                const str = decodeURIComponent(atob(code).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-                const data = JSON.parse(str);
-                mode = data.m; questions = data.q; startGame();
-            } catch(e) { alert("ОШИБКА: Код неправильный или неполный!"); }
+    function renderFeed() {
+        const list = document.getElementById('feed-list');
+        const query = document.getElementById('search-task').value.toLowerCase();
+        list.innerHTML = '';
+        
+        if(games.length === 0) {
+            list.innerHTML = `<div class="card" style="text-align:center; color:var(--text-muted)">Лента пуста. Будьте первыми, создайте квест!</div>`;
+            return;
         }
+
+        games.forEach(g => {
+            if(g.title.toLowerCase().includes(query) || g.creator.toLowerCase().includes(query)) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="game-item-header">
+                        <div>
+                            <span class="badge-tag">${MODES_NAMES[g.mode]}</span>
+                            <h3 style="margin: 8px 0 4px 0;">${g.title}</h3>
+                            <div style="font-size:12px; color:var(--text-muted)">Автор: <b>${g.creator}</b> (${g.class})</div>
+                        </div>
+                        <span class="badge-count">${g.questions.length} вопр.</span>
+                    </div>
+                    <button class="btn" style="margin-top:15px;" onclick="initiatePlay('${g.id}')">Играть ▶️</button>
+                    <div class="reactions">
+                        <div class="reaction-btn" onclick="handleReaction('${g.id}', 'like')">👍 <span>${g.likes}</span></div>
+                        <div class="reaction-btn" onclick="handleReaction('${g.id}', 'dislike')">👎 <span>${g.dislikes}</span></div>
+                        <div class="reaction-btn" onclick="openComments('${g.id}')">💬 <span>${g.comments ? g.comments.length : 0}</span></div>
+                    </div>
+                `;
+                list.appendChild(card);
+            }
+        });
+    }
+
+    function renderMyGames() {
+        const list = document.getElementById('my-games-list');
+        list.innerHTML = '';
+        const my = games.filter(g => g.creator === `${currentUser.name} ${currentUser.surname}`);
+        
+        if(my.length === 0) {
+            list.innerHTML = `<div style="font-size:13px; color:var(--text-muted)">Вы еще не создавали квестов.</div>`;
+            return;
+        }
+        my.forEach(g => {
+            const d = document.createElement('div');
+            d.className = 'card';
+            d.style.background = 'rgba(0,0,0,0.1)';
+            d.innerHTML = `<strong>${g.title}</strong> (${MODES_NAMES[g.mode]}) <button class="btn btn-danger" style="padding:4px 10px; font-size:11px; width:auto; float:right; margin:0;" onclick="deleteGame('${g.id}')">Удалить</button>`;
+            list.appendChild(d);
+        });
+    }
+
+    function deleteGame(id) {
+        games = games.filter(g => g.id !== id);
+        localStorage.setItem('gq_games', JSON.stringify(games));
+        renderMyGames(); renderFeed();
+    }
+
+    function handleReaction(id, type) {
+        const game = games.find(g => g.id === id);
+        if(!game) return;
+        if(!game.likedBy) game.likedBy = [];
+        if(!game.dislikedBy) game.dislikedBy = [];
+
+        if(type === 'like') {
+            if(game.likedBy.includes(currentUser.name)) return;
+            game.likes++; game.likedBy.push(currentUser.name);
+            game.dislikedBy = game.dislikedBy.filter(u => u !== currentUser.name);
+        } else {
+            if(game.dislikedBy.includes(currentUser.name)) return;
+            game.dislikes++; game.dislikedBy.push(currentUser.name);
+            game.likedBy = game.likedBy.filter(u => u !== currentUser.name);
+        }
+        game.likes = game.likedBy.length;
+        game.dislikes = game.dislikedBy.length;
+        localStorage.setItem('gq_games', JSON.stringify(games));
+        renderFeed();
+    }
+
+    function initiatePlay(id) {
+        activeGame = games.find(g => g.id === id);
+        if(!activeGame || !activeGame.questions.length) return alert("В игре нет вопросов!");
+        activeGameIndex = 0;
+        activeScore = 0;
+        switchTab('game');
+        playNextQuestion();
+    }
+
+    function playNextQuestion() {
+        activeIsLocked = false;
+        document.getElementById('game-hud').innerText = `${activeScore} б.`;
+        const qData = activeGame.questions[activeGameIndex];
+        document.getElementById('game-q-text').innerText = qData.q;
+        
+        const stage = document.getElementById('stage');
+        const ansBox = document.getElementById('game-answers');
+        stage.innerHTML = ''; ansBox.innerHTML = '';
+
+        if(activeGame.mode === 'mole') {
+            stage.style.background = "#5d4037";
+            qData.opts.forEach((opt, i) => {
+                const m = document.createElement('div'); m.className = 'mole'; m.innerText = opt.text;
+                m.style.left = (20 + i * 140) + 'px';
+                m.onclick = () => checkEngine(opt.isCorrect, m);
+                stage.appendChild(m);
+                setTimeout(() => m.classList.add('up'), 100 + i * 200);
+            });
+        } 
+        else if(activeGame.mode === 'plane') {
+            stage.style.background = "#0ea5e9";
+            qData.opts.forEach((opt, i) => {
+                const p = document.createElement('div'); p.className = 'plane'; p.innerText = opt.text;
+                p.style.top = (30 + i * 75) + 'px';
+                p.onclick = () => checkEngine(opt.isCorrect, p);
+                stage.appendChild(p);
+            });
+        }
+        else if(activeGame.mode === 'words') {
+            stage.style.background = "#fff";
+            stage.innerHTML = `<input type="text" id="mode-word-in" placeholder="Напишите точный ответ сюда..." style="width:85%; padding:12px; border:2px solid var(--primary); color:#000;">`;
+            const b = document.createElement('button'); b.className = 'btn'; b.innerText = "Проверить ответ";
+            b.onclick = () => {
+                const text = document.getElementById('mode-word-in').value.trim().toLowerCase();
+                const correct = qData.opts.find(o => o.isCorrect).text.toLowerCase();
+                checkEngine(text === correct);
+            };
+            ansBox.appendChild(b);
+        }
+        else if(activeGame.mode === 'sort') {
+            stage.style.background = "#e2e8f0";
+            stage.innerHTML = `<div style="padding:15px; background:var(--secondary); border-radius:12px; font-weight:bold; color:white;">Категория: ВЕРНОЕ НАПИСАНИЕ</div>`;
+            qData.opts.forEach(opt => {
+                const b = document.createElement('button'); b.className = 'btn btn-sec'; b.innerText = opt.text;
+                b.onclick = () => checkEngine(opt.isCorrect, b);
+                ansBox.appendChild(b);
+            });
+        }
+        else { 
+            stage.style.background = "#f1f5f9";
+            stage.innerHTML = `<div style="font-size:60px; color: #1c2541">${activeGame.mode === 'tf' ? '⚖️' : '📝'}</div>`;
+            qData.opts.forEach(opt => {
+                const b = document.createElement('button'); b.className = 'btn btn-sec'; b.innerText = opt.text;
+                b.onclick = () => checkEngine(opt.isCorrect, b);
+                ansBox.appendChild(b);
+            });
+        }
+    }
+
+    function checkEngine(correct, element) {
+        if(activeIsLocked) return;
+        activeIsLocked = true;
+        
+        if(correct) {
+            activeScore += 10;
+            if(element) element.style.background = "var(--success)";
+        } else {
+            if(element) element.style.background = "var(--danger)";
+        }
+
+        activeGameIndex++;
+        setTimeout(() => {
+            if(activeGameIndex < activeGame.questions.length) {
+                playNextQuestion();
+            } else {
+                showFinalResults();
+            }
+        }, 800);
+    }
+
+    function showFinalResults() {
+        switchTab('results');
+        document.getElementById('res-game-title').innerText = activeGame.title;
+        document.getElementById('res-user-name').innerText = `${currentUser.name} ${currentUser.surname} (${currentUser.class})`;
+        document.getElementById('res-total-score').innerText = `${activeScore} баллов`;
+        
+        const maxScore = activeGame.questions.length * 10;
+        let feedback = "";
+        if(activeScore === maxScore) feedback = "Идеально! Ты настоящий знаток русского языка! 🎉";
+        else if (activeScore >= maxScore * 0.7) feedback = "Замечательный результат! Одноклассники будут гордиться тобой. 👍";
+        else feedback = "Хорошо сыграно! Попробуй пройти другие квесты, чтобы улучшить навыки. 📖";
+        
+        document.getElementById('res-feedback-text').innerText = feedback;
+    }
+
+    function openComments(id) {
+        activeCommentGameId = id;
+        const game = games.find(g => g.id === id);
+        switchTab('comments');
+        document.getElementById('comment-game-info').innerHTML = `<h3>Задание: ${game.title}</h3><p style="color:var(--text-muted); margin:0;">Создатель: ${game.creator}</p>`;
+        renderCommentsList(game);
+    }
+
+    function renderCommentsList(game) {
+        const box = document.getElementById('comments-box');
+        box.innerHTML = '';
+        if(!game.comments || game.comments.length === 0) {
+            box.innerHTML = `<p style="color:var(--text-muted); font-size:13px;">Комментариев пока нет. Напишите первый отзыв!</p>`;
+            return;
+        }
+        game.comments.forEach(c => {
+            const div = document.createElement('div');
+            div.style.cssText = "background:rgba(255,255,255,0.03); padding:10px; border-radius:10px; margin-bottom:8px; border-left:3px solid var(--primary);";
+            div.innerHTML = `<div style="font-size:12px; font-weight:bold; color:var(--primary);">${c.user} (${c.class})</div><div style="font-size:14px; margin-top:4px;">${c.text}</div>`;
+            box.appendChild(div);
+        });
+    }
+
+    function submitComment() {
+        const text = document.getElementById('new-comment-text').value.trim();
+        if(!text) return alert("Поле комментария не может быть пустым!");
+        const game = games.find(g => g.id === activeCommentGameId);
+        if(!game.comments) game.comments = [];
+        
+        game.comments.push({ user: `${currentUser.name} ${currentUser.surname}`, class: currentUser.class, text: text });
+        localStorage.setItem('gq_games', JSON.stringify(games));
+        document.getElementById('new-comment-text').value = '';
+        renderCommentsList(game); renderFeed();
     }
 </script>
-
-<style>
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-</style>
-
 </body>
 </html>
