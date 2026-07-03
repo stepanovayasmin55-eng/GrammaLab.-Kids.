@@ -143,9 +143,10 @@
                 <option value="quiz">🎓 Супер Экзамен (Тест)</option>
             </select>
 
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button class="btn btn-sec" style="margin:0" onclick="generateAIQuestions()">🤖 Умный ИИ-Генератор</button>
-                <button class="btn btn-outline" style="margin:0" onclick="openManualEditor()">✍️ Вручную</button>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+                <button class="btn btn-sec" style="margin:0" onclick="generateAIQuestions()">🤖 Встроенный ИИ (Орфография)</button>
+                <button class="btn" style="margin:0; background-color: #6c5ce7;" onclick="importFromGemini()">🌌 Вставить готовый квест от Gemini</button>
+                <button class="btn btn-outline" style="margin:0" onclick="openManualEditor()">✍️ Создать вручную</button>
             </div>
             
             <div id="builder-zone" style="display:none; border-top:1px solid #3a4464; padding-top:15px;">
@@ -225,9 +226,9 @@
 
 <script>
     // ПРИНУДИТЕЛЬНЫЙ СБРОС СТАРЫХ ДАННЫХ ДЛЯ ЗАПУСКА С ЧИСТОГО ЛИСТА
-    if (!localStorage.getItem('gq_clean_start_v2')) {
+    if (!localStorage.getItem('gq_clean_start_v3')) {
         localStorage.removeItem('gq_games');
-        localStorage.setItem('gq_clean_start_v2', 'true');
+        localStorage.setItem('gq_clean_start_v3', 'true');
     }
 
     let currentUser = JSON.parse(localStorage.getItem('gq_user')) || null;
@@ -242,7 +243,7 @@
 
     const MODES_NAMES = { mole: "🔨 Кроты", plane: "✈️ Самолет", words: "🔠 Мастер Слов", tf: "⚖️ Правда/Ложь", sort: "↔️ Сортировщик", quiz: "🎓 Экзамен" };
 
-    // Умная лингвистическая ИИ-матрица
+    // Умная лингвистическая ИИ-матрица (Базовая)
     const AI_LEXICON = {
         prefixes: [
             {w: "пр..красный", c: "Прекрасный", w1: "Прикрасный", r: "пре- в значении 'очень'"},
@@ -261,7 +262,7 @@
             {w: "выр..щенный", c: "Выращенный", w1: "Вырощенный", r: "чередование раст/ращ/рос"},
             {w: "к..саться", c: "Касаться", w1: "Коснуться", r: "кас/кос (есть суффикс А)"},
             {w: "заг..рать", c: "Загорать", w1: "Загарать", r: "гор/гар (без ударения пишется О)"},
-            {w: "бл..стеть", c: "Блестеть", w1: "Блистать", r: "блест/блист (нет суффикса А)"},
+            {w: "бл..стеть", c: "Bлестеть", w1: "Блистать", r: "блест/блист (нет суффикса А)"},
             {w: "м..кать сухарь", c: "Макать", w1: "Мокать", r: "мак/мок (в значении погружения в жидкость)"},
             {w: "р..внина", c: "Равнина", w1: "Ровнина", r: "исключение в чередовании равн/ровн"},
             {w: "пл..вец", c: "Пловец", w1: "Плавец", r: "исключение в корне плав/плов"},
@@ -398,6 +399,7 @@
         setupQuestionBuilderField();
     }
 
+    // УЛУЧШЕННЫЙ ВСТРОЕННЫЙ РАНДОМАЙЗЕР (Алгоритм Фишера-Йетса)
     function generateAIQuestions() {
         document.getElementById('builder-zone').style.display = 'none';
         
@@ -406,7 +408,6 @@
         
         const cleanTheme = promptTheme.toLowerCase().trim();
         buildQuestions = [];
-
         let sourceData = [];
         
         if (cleanTheme.includes("пристав") || cleanTheme.includes("пре") || cleanTheme.includes("при")) {
@@ -419,7 +420,11 @@
             sourceData = [...AI_LEXICON.general];
         }
 
-        sourceData.sort(() => Math.random() - 0.5);
+        // Перемешивание исходных слов
+        for (let i = sourceData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [sourceData[i], sourceData[j]] = [sourceData[j], sourceData[i]];
+        }
 
         for (let i = 0; i < 10; i++) {
             let dataItem = sourceData[i % sourceData.length];
@@ -436,9 +441,10 @@
                     `Как правильно пишется слово или конструкция: "${dataItem.w}"?`,
                     `Найдите верный орфографический вариант для: "${dataItem.w}":`,
                     `В каком случае не допущена ошибка в правиле (${dataItem.r})?`,
-                    `Выберите правильный вариант написания по тему "${cleanTheme}":`
+                    `Выберите правильный вариант написания по теме "${cleanTheme}":`
                 ];
-                questionText = `[№${i+1}] ` + variantsOfQuestions[i % variantsOfQuestions.length];
+                const randomVisualIndex = Math.floor(Math.random() * variantsOfQuestions.length);
+                questionText = `[№${i+1}] ` + variantsOfQuestions[randomVisualIndex];
                 rightOption = dataItem.c;
                 wrongOption = dataItem.w1;
             }
@@ -457,6 +463,41 @@
         
         if(!document.getElementById('setup-title').value.trim()) {
             document.getElementById('setup-title').value = "Квест по теме: " + promptTheme;
+        }
+    }
+
+    // НОВАЯ ФУНКЦИЯ ДЛЯ ИМПОРТА ЛЮБЫХ ТЕМ ОТ GEMINI
+    function importFromGemini() {
+        document.getElementById('builder-zone').style.display = 'none';
+        const codeInput = prompt("Вставь сюда секретный текстовый код квеста, который сгенерировал Gemini:");
+        if (!codeInput) return;
+
+        try {
+            // Декодируем и парсим переданные данные
+            const cleanJson = atob(codeInput.trim());
+            const data = JSON.parse(cleanJson);
+
+            if (!data.title || !data.questions || !Array.isArray(data.questions)) {
+                throw new Error("Неверный формат данных");
+            }
+
+            buildQuestions = data.questions.map(item => {
+                return {
+                    q: item.q,
+                    opts: [
+                        { text: item.a, isCorrect: true },
+                        { text: item.n, isCorrect: false }
+                    ].sort(() => Math.random() - 0.5)
+                };
+            });
+
+            document.getElementById('setup-title').value = data.title;
+            document.getElementById('ready-q-count').innerText = `Успешно загружено тем ИИ: ${buildQuestions.length} вопр.`;
+            document.getElementById('btn-publish-game').style.display = 'block';
+            alert(`Квест "${data.title}" на тему "${data.title}" успешно импортирован! Нажми «Опубликовать задание».`);
+
+        } catch (e) {
+            alert("Ошибка импорта! Пожалуйста, убедись, что скопировал код от Gemini полностью, без лишних пробелов.");
         }
     }
 
@@ -667,9 +708,9 @@
         
         const maxScore = activeGame.questions.length * 10;
         let feedback = "";
-        if(activeScore === maxScore) feedback = "Идеально! Ты настоящий знаток русского языка! 🎉";
-        else if (activeScore >= maxScore * 0.7) feedback = "Замечательный результат! Одноклассники будут гордиться тобой. 👍";
-        else feedback = "Хорошо сыграно! Попробуй пройти другие квесты, чтобы улучшить навыки. 📖";
+        if(activeScore === maxScore) feedback = "Идеально! Ты настоящий знаток! 🎉";
+        else if (activeScore >= maxScore * 0.7) feedback = "Замечательный результат! Отличная работа. 👍";
+        else feedback = "Хорошо сыграно! Попробуй пройти другие квесты, чтобы потренироваться. 📖";
         
         document.getElementById('res-feedback-text').innerText = feedback;
     }
